@@ -29,14 +29,15 @@ class ExampleHome extends StatefulWidget {
 }
 
 class _ExampleHomeState extends State<ExampleHome> {
+  final ShareManager _manager = ShareManager();
   late final QqShareProvider _provider = QqShareProvider(appId: _appId);
   String _status = '未初始化';
 
   Future<void> _initialize() async {
     try {
-      QqShareProvider.setPrivacyGranted(true);
-      await _provider.initialize();
-      final installed = await _provider.isInstalled();
+      await QqShareProvider.setPrivacyGranted(true);
+      await _manager.register(_provider);
+      final installed = await _manager.isInstalled(ShareClient.qq);
       setState(() {
         _status = installed ? '已初始化，QQ 已安装' : '已初始化，QQ 未安装';
       });
@@ -51,7 +52,7 @@ class _ExampleHomeState extends State<ExampleHome> {
     if (!_provider.isInitialized) {
       await _initialize();
     }
-    final result = await _provider.share(
+    final result = await _manager.share(
       channel: channel,
       content: const ShareContent.webpage(
         title: 'Share Bridge QQ 示例',

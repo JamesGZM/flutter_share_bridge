@@ -14,10 +14,8 @@ final class QqShareProvider implements ShareProvider {
     ShareBridgeQqPlatform? platform,
   }) : _platform = platform ?? ShareBridgeQqPlatform.instance;
 
-  static bool _privacyGranted = false;
-
-  static void setPrivacyGranted(bool granted) {
-    _privacyGranted = granted;
+  static Future<void> setPrivacyGranted(bool granted) {
+    return ShareBridgeQqPlatform.instance.setPrivacyGranted(granted);
   }
 
   final String appId;
@@ -29,6 +27,9 @@ final class QqShareProvider implements ShareProvider {
 
   @override
   String get providerId => 'qq';
+
+  @override
+  ShareClient get client => ShareClient.qq;
 
   @override
   Set<ShareChannel> get supportedChannels => {
@@ -44,12 +45,6 @@ final class QqShareProvider implements ShareProvider {
     if (_isInitialized) {
       return;
     }
-    if (!_privacyGranted) {
-      throw const ShareBridgeException(
-        ShareResultCode.permissionDenied,
-        'Privacy permission has not been granted.',
-      );
-    }
     if (appId.trim().isEmpty) {
       throw const ShareBridgeException(
         ShareResultCode.configError,
@@ -60,14 +55,13 @@ final class QqShareProvider implements ShareProvider {
     await _platform.initialize(
       appId: appId,
       universalLink: universalLink,
-      privacyGranted: _privacyGranted,
     );
     _isInitialized = true;
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) {
-    return _platform.isInstalled(channel: channel);
+  Future<bool> isClientInstalled() {
+    return _platform.isInstalled();
   }
 
   @override
@@ -92,13 +86,6 @@ final class QqShareProvider implements ShareProvider {
         message: 'A QQ share request is already pending.',
       );
     }
-    if (!await isInstalled(channel: channel)) {
-      return const ShareResult(
-        code: ShareResultCode.appNotInstalled,
-        message: 'QQ is not installed.',
-      );
-    }
-
     _isSharing = true;
     try {
       final requestId = _newRequestId();

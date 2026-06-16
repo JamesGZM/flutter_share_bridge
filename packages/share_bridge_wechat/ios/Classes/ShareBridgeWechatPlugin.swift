@@ -116,8 +116,8 @@ public class ShareBridgeWechatPlugin: NSObject, FlutterPlugin, WXApiDelegate {
     message.title = title
     message.description = description
     message.mediaObject = webpage
-    if let thumbPath = arguments["thumbPath"] as? String {
-      setThumbImage(message: message, path: thumbPath)
+    if let thumbnail = imageData(arguments["thumbnail"]) {
+      setThumbImage(message: message, data: thumbnail)
     }
 
     sendMessage(arguments: arguments, message: message, result: result)
@@ -128,14 +128,8 @@ public class ShareBridgeWechatPlugin: NSObject, FlutterPlugin, WXApiDelegate {
       result(resultMap(code: "invalidArgument", message: "参数格式不正确。"))
       return
     }
-    let imagePath = arguments["imagePath"] as? String ?? ""
-    if imagePath.isEmpty || !FileManager.default.isReadableFile(atPath: imagePath) {
-      result(resultMap(code: "invalidArgument", message: "imagePath 必须指向可读文件。"))
-      return
-    }
-
-    guard let imageData = try? Data(contentsOf: URL(fileURLWithPath: imagePath)) else {
-      result(resultMap(code: "invalidArgument", message: "imagePath 文件读取失败。"))
+    guard let imageData = imageData(arguments["image"]) else {
+      result(resultMap(code: "invalidArgument", message: "image 必须是可读文件或非空字节。"))
       return
     }
 
@@ -144,10 +138,10 @@ public class ShareBridgeWechatPlugin: NSObject, FlutterPlugin, WXApiDelegate {
 
     let message = WXMediaMessage()
     message.mediaObject = image
-    if let thumbPath = arguments["thumbPath"] as? String {
-      setThumbImage(message: message, path: thumbPath)
+    if let thumbnail = self.imageData(arguments["thumbnail"]) {
+      setThumbImage(message: message, data: thumbnail)
     } else {
-      setThumbImage(message: message, path: imagePath)
+      setThumbImage(message: message, data: imageData)
     }
 
     sendMessage(arguments: arguments, message: message, result: result)
@@ -225,8 +219,28 @@ public class ShareBridgeWechatPlugin: NSObject, FlutterPlugin, WXApiDelegate {
     result?(value)
   }
 
-  private func setThumbImage(message: WXMediaMessage, path: String) {
-    guard let image = UIImage(contentsOfFile: path) else {
+  private func imageData(_ value: Any?) -> Data? {
+    guard let source = value as? [String: Any],
+          let type = source["type"] as? String
+    else {
+      return nil
+    }
+    if type == "file",
+       let path = source["path"] as? String,
+       !path.isEmpty,
+       FileManager.default.isReadableFile(atPath: path) {
+      return try? Data(contentsOf: URL(fileURLWithPath: path))
+    }
+    if type == "memory",
+       let data = source["bytes"] as? FlutterStandardTypedData,
+       !data.data.isEmpty {
+      return data.data
+    }
+    return nil
+  }
+
+  private func setThumbImage(message: WXMediaMessage, data: Data) {
+    guard let image = UIImage(data: data) else {
       return
     }
     let renderer = UIGraphicsImageRenderer(size: CGSize(width: 120, height: 120))

@@ -14,12 +14,6 @@ final class WechatShareProvider implements ShareProvider {
     ShareBridgeWechatPlatform? platform,
   }) : _platform = platform ?? ShareBridgeWechatPlatform.instance;
 
-  static bool _privacyGranted = false;
-
-  static void setPrivacyGranted(bool granted) {
-    _privacyGranted = granted;
-  }
-
   final String appId;
   final String? universalLink;
   final ShareBridgeWechatPlatform _platform;
@@ -29,6 +23,9 @@ final class WechatShareProvider implements ShareProvider {
 
   @override
   String get providerId => 'wechat';
+
+  @override
+  ShareClient get client => ShareClient.wechat;
 
   @override
   Set<ShareChannel> get supportedChannels => {
@@ -43,12 +40,6 @@ final class WechatShareProvider implements ShareProvider {
   Future<void> initialize() async {
     if (_isInitialized) {
       return;
-    }
-    if (!_privacyGranted) {
-      throw const ShareBridgeException(
-        ShareResultCode.permissionDenied,
-        'Privacy permission has not been granted.',
-      );
     }
     if (appId.trim().isEmpty) {
       throw const ShareBridgeException(
@@ -65,8 +56,8 @@ final class WechatShareProvider implements ShareProvider {
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) {
-    return _platform.isInstalled(channel: channel);
+  Future<bool> isClientInstalled() {
+    return _platform.isInstalled();
   }
 
   @override
@@ -89,13 +80,6 @@ final class WechatShareProvider implements ShareProvider {
         message: 'A WeChat share request is already pending.',
       );
     }
-    if (!await isInstalled(channel: channel)) {
-      return const ShareResult(
-        code: ShareResultCode.appNotInstalled,
-        message: 'WeChat is not installed.',
-      );
-    }
-
     _isSharing = true;
     try {
       final requestId = _newRequestId();

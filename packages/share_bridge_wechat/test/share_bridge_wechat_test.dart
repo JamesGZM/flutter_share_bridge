@@ -18,7 +18,7 @@ class MockShareBridgeWechatPlatform
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) async => true;
+  Future<bool> isInstalled() async => true;
 
   @override
   Future<ShareResult> shareImage({
@@ -50,18 +50,17 @@ void main() {
     expect(initialPlatform, isInstanceOf<MethodChannelShareBridgeWechat>());
   });
 
-  test('initialize requires privacy permission', () async {
-    WechatShareProvider.setPrivacyGranted(false);
+  test('initialize does not require plugin privacy flag', () async {
+    final fakePlatform = MockShareBridgeWechatPlatform();
+    ShareBridgeWechatPlatform.instance = fakePlatform;
     final provider = WechatShareProvider(appId: 'wx123');
 
-    expect(
-      provider.initialize,
-      throwsA(isA<ShareBridgeException>()),
-    );
+    await provider.initialize();
+
+    expect(fakePlatform.initialized, isTrue);
   });
 
-  test('shares webpage through platform after privacy permission', () async {
-    WechatShareProvider.setPrivacyGranted(true);
+  test('shares webpage through platform', () async {
     final fakePlatform = MockShareBridgeWechatPlatform();
     ShareBridgeWechatPlatform.instance = fakePlatform;
     final provider = WechatShareProvider(appId: 'wx123');

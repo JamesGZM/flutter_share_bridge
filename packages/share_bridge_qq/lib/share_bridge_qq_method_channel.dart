@@ -13,21 +13,23 @@ class MethodChannelShareBridgeQq extends ShareBridgeQqPlatform {
   Future<void> initialize({
     required String appId,
     String? universalLink,
-    required bool privacyGranted,
   }) async {
     await methodChannel.invokeMethod<void>('initialize', {
       'appId': appId,
       'universalLink': universalLink,
-      'privacyGranted': privacyGranted,
     });
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) async {
-    return await methodChannel.invokeMethod<bool>('isInstalled', {
-          'channel': channel?.id,
-        }) ??
-        false;
+  Future<void> setPrivacyGranted(bool granted) async {
+    await methodChannel.invokeMethod<void>('setPrivacyGranted', {
+      'granted': granted,
+    });
+  }
+
+  @override
+  Future<bool> isInstalled() async {
+    return await methodChannel.invokeMethod<bool>('isInstalled') ?? false;
   }
 
   @override
@@ -59,7 +61,7 @@ class MethodChannelShareBridgeQq extends ShareBridgeQqPlatform {
         'title': content.title,
         'description': content.description,
         'url': content.url,
-        'thumbPath': content.thumbPath,
+        'thumbnail': _imageSourceToMap(content.thumbnail),
       },
     );
     return _resultFromMap(raw);
@@ -76,8 +78,8 @@ class MethodChannelShareBridgeQq extends ShareBridgeQqPlatform {
       {
         'requestId': requestId,
         'channel': channel.id,
-        'imagePath': content.imagePath,
-        'thumbPath': content.thumbPath,
+        'image': _imageSourceToMap(content.image),
+        'thumbnail': _imageSourceToMap(content.thumbnail),
       },
     );
     return _resultFromMap(raw);
@@ -97,5 +99,20 @@ class MethodChannelShareBridgeQq extends ShareBridgeQqPlatform {
       message: raw['message'] as String?,
       raw: raw,
     );
+  }
+
+  Map<String, Object?>? _imageSourceToMap(ShareImageSource? source) {
+    return switch (source) {
+      null => null,
+      ShareFileImageSource(:final path) => {
+          'type': 'file',
+          'path': path,
+        },
+      ShareMemoryImageSource(:final bytes, :final mimeType) => {
+          'type': 'memory',
+          'bytes': bytes,
+          'mimeType': mimeType,
+        },
+    };
   }
 }

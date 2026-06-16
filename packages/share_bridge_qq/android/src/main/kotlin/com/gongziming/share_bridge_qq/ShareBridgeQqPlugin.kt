@@ -43,6 +43,7 @@ class ShareBridgeQqPlugin :
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "initialize" -> initialize(call, result)
+            "setPrivacyGranted" -> setPrivacyGranted(call, result)
             "isInstalled" -> result.success(isInstalled())
             "supports" -> result.success(supports(call))
             "shareWebPage" -> shareWebPage(call, result)
@@ -87,14 +88,18 @@ class ShareBridgeQqPlugin :
             return
         }
         val authorities = "${applicationContext.packageName}.fileprovider"
-        val privacyGranted = call.argument<Boolean>("privacyGranted") ?: false
         try {
-            Tencent.setIsPermissionGranted(privacyGranted)
             tencent = Tencent.createInstance(appId, applicationContext, authorities)
             result.success(null)
         } catch (error: Throwable) {
             result.error("configError", "QQ SDK 初始化失败：${error.message}", null)
         }
+    }
+
+    private fun setPrivacyGranted(call: MethodCall, result: Result) {
+        val granted = call.argument<Boolean>("granted") ?: false
+        Tencent.setIsPermissionGranted(granted)
+        result.success(null)
     }
 
     private fun isInstalled(): Boolean {
@@ -132,9 +137,9 @@ class ShareBridgeQqPlugin :
             putString(QQShare.SHARE_TO_QQ_TITLE, title)
             putString(QQShare.SHARE_TO_QQ_SUMMARY, description)
             putString(QQShare.SHARE_TO_QQ_TARGET_URL, url)
-            call.argument<String>("thumbPath")?.takeIf { it.isNotBlank() }?.let {
-                putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, it)
-                putStringArrayList(QzoneShare.SHARE_TO_QQ_IMAGE_URL, arrayListOf(it))
+            imageFile(call, "thumbnail")?.let {
+                putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, it.absolutePath)
+                putStringArrayList(QzoneShare.SHARE_TO_QQ_IMAGE_URL, arrayListOf(it.absolutePath))
             }
         }
         share(call, result, params)
@@ -146,10 +151,9 @@ class ShareBridgeQqPlugin :
             result.success(resultMap("unsupportedContent", "QQ 空间纯图片分享暂不作为 Android MVP 能力。"))
             return
         }
-        val imagePath = call.argument<String>("imagePath").orEmpty()
-        val imageFile = File(imagePath)
-        if (imagePath.isBlank() || !imageFile.exists() || !imageFile.canRead()) {
-            result.success(resultMap("invalidArgument", "imagePath 必须指向可读文件。"))
+        val imageFile = imageFile(call, "image")
+        if (imageFile == null) {
+            result.success(resultMap("invalidArgument", "image 必须是可读文件或非空字节。"))
             return
         }
 
@@ -158,6 +162,25 @@ class ShareBridgeQqPlugin :
             putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, imageFile.absolutePath)
         }
         share(call, result, params)
+    }
+
+    private fun imageFile(call: MethodCall, key: String): File? {
+        val source = call.argument<Map<String, Any?>>(key) ?: return null
+        return when (source["type"] as? String) {
+            "file" -> {
+                val path = (source["path"] as? String)?.takeIf { it.isNotBlank() } ?: return null
+                val file = File(path)
+                file.takeIf { it.exists() && it.canRead() }
+            }
+            "memory" -> {
+                val bytes = source["bytes"] as? ByteArray ?: return null
+                if (bytes.isEmpty()) return null
+                val file = File.createTempFile("share_bridge_qq_", ".img", applicationContext.cacheDir)
+                file.writeBytes(bytes)
+                file
+            }
+            else -> null
+        }
     }
 
     private fun share(call: MethodCall, result: Result, params: Bundle) {
@@ -213,7 +236,8 @@ class ShareBridgeQqPlugin :
             }
 
             override fun onError(error: UiError?) {
-                completePending(resultMap("nativeError", extractUiError(error)))
+                val code = if (error?.errorCode == 30001) "permissionDenied" else "nativeError"
+                completePending(resultMap(code, extractUiError(error)))
             }
 
             override fun onCancel() {

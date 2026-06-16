@@ -50,4 +50,29 @@ void main() {
 
     expect(result.code, ShareResultCode.success);
   });
+
+  test('shareImage encodes image source', () async {
+    MethodCall? receivedCall;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (methodCall) async {
+      receivedCall = methodCall;
+      return {
+        'code': 'success',
+        'message': null,
+      };
+    });
+
+    await platform.shareImage(
+      requestId: '1',
+      channel: ShareChannel.wechatSession,
+      content: const ShareImageContent(
+        image: ShareImageSource.file('/tmp/a.png'),
+      ),
+    );
+
+    expect(receivedCall?.method, 'shareImage');
+    final arguments = receivedCall?.arguments as Map<Object?, Object?>;
+    expect(arguments['image'], containsPair('type', 'file'));
+    expect(arguments['image'], containsPair('path', '/tmp/a.png'));
+  });
 }

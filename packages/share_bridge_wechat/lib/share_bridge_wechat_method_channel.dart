@@ -21,11 +21,8 @@ class MethodChannelShareBridgeWechat extends ShareBridgeWechatPlatform {
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) async {
-    return await methodChannel.invokeMethod<bool>('isInstalled', {
-          'channel': channel?.id,
-        }) ??
-        false;
+  Future<bool> isInstalled() async {
+    return await methodChannel.invokeMethod<bool>('isInstalled') ?? false;
   }
 
   @override
@@ -42,7 +39,7 @@ class MethodChannelShareBridgeWechat extends ShareBridgeWechatPlatform {
         'title': content.title,
         'description': content.description,
         'url': content.url,
-        'thumbPath': content.thumbPath,
+        'thumbnail': _imageSourceToMap(content.thumbnail),
       },
     );
     return _resultFromMap(raw);
@@ -59,8 +56,8 @@ class MethodChannelShareBridgeWechat extends ShareBridgeWechatPlatform {
       {
         'requestId': requestId,
         'channel': channel.id,
-        'imagePath': content.imagePath,
-        'thumbPath': content.thumbPath,
+        'image': _imageSourceToMap(content.image),
+        'thumbnail': _imageSourceToMap(content.thumbnail),
       },
     );
     return _resultFromMap(raw);
@@ -80,5 +77,20 @@ class MethodChannelShareBridgeWechat extends ShareBridgeWechatPlatform {
       message: raw['message'] as String?,
       raw: raw,
     );
+  }
+
+  Map<String, Object?>? _imageSourceToMap(ShareImageSource? source) {
+    return switch (source) {
+      null => null,
+      ShareFileImageSource(:final path) => {
+          'type': 'file',
+          'path': path,
+        },
+      ShareMemoryImageSource(:final bytes, :final mimeType) => {
+          'type': 'memory',
+          'bytes': bytes,
+          'mimeType': mimeType,
+        },
+    };
   }
 }

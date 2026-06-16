@@ -24,9 +24,7 @@ abstract class ShareBridgeWechatPlatform extends PlatformInterface {
     throw UnimplementedError('initialize() has not been implemented.');
   }
 
-  Future<bool> isInstalled({
-    ShareChannel? channel,
-  }) {
+  Future<bool> isInstalled() {
     throw UnimplementedError('isInstalled() has not been implemented.');
   }
 

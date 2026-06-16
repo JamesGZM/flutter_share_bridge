@@ -87,34 +87,29 @@ class ShareBridgeWechatPlugin : FlutterPlugin, MethodCallHandler {
         val message = WXMediaMessage(WXWebpageObject(url)).apply {
             this.title = title
             this.description = description
-            call.argument<String>("thumbPath")?.let { thumbPath ->
-                thumbData = loadThumbData(thumbPath)
+            imageSource(call, "thumbnail")?.let { thumbnail ->
+                thumbData = loadThumbData(thumbnail)
             }
         }
         sendMessage(call, result, message)
     }
 
     private fun shareImage(call: MethodCall, result: Result) {
-        val imagePath = call.argument<String>("imagePath").orEmpty()
-        if (imagePath.isBlank()) {
-            result.success(resultMap("invalidArgument", "imagePath must not be empty."))
-            return
-        }
-        val imageFile = File(imagePath)
-        if (!imageFile.exists() || !imageFile.canRead()) {
-            result.success(resultMap("invalidArgument", "imagePath must point to a readable file."))
+        val imageSource = imageSource(call, "image")
+        if (imageSource == null) {
+            result.success(resultMap("invalidArgument", "image must be a readable file or non-empty bytes."))
             return
         }
 
-        val imageObject = WXImageObject().apply {
-            setImagePath(imageFile.absolutePath)
+        val imageObject = when (imageSource) {
+            is ImageSource.FileSource -> WXImageObject().apply {
+                setImagePath(imageSource.file.absolutePath)
+            }
+            is ImageSource.MemorySource -> WXImageObject(imageSource.bytes)
         }
         val message = WXMediaMessage(imageObject).apply {
-            call.argument<String>("thumbPath")?.let { thumbPath ->
-                thumbData = loadThumbData(thumbPath)
-            } ?: run {
-                thumbData = loadThumbData(imageFile.absolutePath)
-            }
+            thumbData = imageSource(call, "thumbnail")?.let { loadThumbData(it) }
+                ?: loadThumbData(imageSource)
         }
         sendMessage(call, result, message)
     }
@@ -168,12 +163,33 @@ class ShareBridgeWechatPlugin : FlutterPlugin, MethodCallHandler {
         scheduleTimeout(requestId)
     }
 
-    private fun loadThumbData(path: String): ByteArray? {
-        val file = File(path)
-        if (!file.exists() || !file.canRead()) {
-            return null
+    private fun imageSource(call: MethodCall, key: String): ImageSource? {
+        val source = call.argument<Map<String, Any?>>(key) ?: return null
+        return when (source["type"] as? String) {
+            "file" -> {
+                val path = (source["path"] as? String)?.takeIf { it.isNotBlank() } ?: return null
+                val file = File(path)
+                if (!file.exists() || !file.canRead()) return null
+                ImageSource.FileSource(file)
+            }
+            "memory" -> {
+                val bytes = source["bytes"] as? ByteArray ?: return null
+                if (bytes.isEmpty()) return null
+                ImageSource.MemorySource(bytes)
+            }
+            else -> null
         }
-        val bitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return null
+    }
+
+    private fun loadThumbData(source: ImageSource): ByteArray? {
+        val bitmap = when (source) {
+            is ImageSource.FileSource -> BitmapFactory.decodeFile(source.file.absolutePath)
+            is ImageSource.MemorySource -> BitmapFactory.decodeByteArray(
+                source.bytes,
+                0,
+                source.bytes.size
+            )
+        } ?: return null
         val scaled = Bitmap.createScaledBitmap(bitmap, 120, 120, true)
         val output = ByteArrayOutputStream()
         var quality = 85
@@ -187,6 +203,11 @@ class ShareBridgeWechatPlugin : FlutterPlugin, MethodCallHandler {
         }
         bitmap.recycle()
         return output.toByteArray().takeIf { it.size <= MAX_THUMB_BYTES }
+    }
+
+    private sealed class ImageSource {
+        data class FileSource(val file: File) : ImageSource()
+        data class MemorySource(val bytes: ByteArray) : ImageSource()
     }
 
     companion object {

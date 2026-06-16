@@ -30,7 +30,6 @@ class _ExampleAppState extends State<ExampleApp> {
   }
 
   Future<void> _setup() async {
-    WechatShareProvider.setPrivacyGranted(true);
     await _manager.register(_provider);
   }
 

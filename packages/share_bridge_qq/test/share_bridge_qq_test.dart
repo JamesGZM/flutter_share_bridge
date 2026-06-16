@@ -14,14 +14,17 @@ class MockShareBridgeQqPlatform
   Future<void> initialize({
     required String appId,
     String? universalLink,
-    required bool privacyGranted,
   }) async {
     initialized = true;
-    receivedPrivacyGranted = privacyGranted;
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) async => true;
+  Future<void> setPrivacyGranted(bool granted) async {
+    receivedPrivacyGranted = granted;
+  }
+
+  @override
+  Future<bool> isInstalled() async => true;
 
   @override
   Future<bool> supports({
@@ -61,18 +64,16 @@ void main() {
     expect(initialPlatform, isInstanceOf<MethodChannelShareBridgeQq>());
   });
 
-  test('initialize requires privacy permission', () async {
-    QqShareProvider.setPrivacyGranted(false);
-    final provider = QqShareProvider(appId: '101');
+  test('setPrivacyGranted delegates to platform', () async {
+    final fakePlatform = MockShareBridgeQqPlatform();
+    ShareBridgeQqPlatform.instance = fakePlatform;
 
-    expect(
-      provider.initialize,
-      throwsA(isA<ShareBridgeException>()),
-    );
+    await QqShareProvider.setPrivacyGranted(true);
+
+    expect(fakePlatform.receivedPrivacyGranted, isTrue);
   });
 
-  test('shares webpage through platform after privacy permission', () async {
-    QqShareProvider.setPrivacyGranted(true);
+  test('shares webpage through platform', () async {
     final fakePlatform = MockShareBridgeQqPlatform();
     ShareBridgeQqPlatform.instance = fakePlatform;
     final provider = QqShareProvider(appId: '101');
@@ -88,7 +89,6 @@ void main() {
     );
 
     expect(fakePlatform.initialized, isTrue);
-    expect(fakePlatform.receivedPrivacyGranted, isTrue);
     expect(result.code, ShareResultCode.success);
   });
 }

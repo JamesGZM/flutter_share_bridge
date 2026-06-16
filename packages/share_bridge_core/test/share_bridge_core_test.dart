@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:share_bridge_core/share_bridge_core.dart';
 import 'package:test/test.dart';
 
@@ -5,15 +7,28 @@ void main() {
   group('ShareChannel', () {
     test('compares by id', () {
       expect(
-        const ShareChannel('wechat.session'),
+        const ShareChannel(
+          id: 'wechat.session',
+          client: ShareClient.wechat,
+        ),
         ShareChannel.wechatSession,
       );
       expect(
         {ShareChannel.wechatSession}.contains(
-          const ShareChannel('wechat.session'),
+          const ShareChannel(
+            id: 'wechat.session',
+            client: ShareClient.wechat,
+          ),
         ),
         isTrue,
       );
+    });
+
+    test('built-in channels are linked to clients', () {
+      expect(ShareChannel.wechatSession.client, ShareClient.wechat);
+      expect(ShareChannel.wechatTimeline.client, ShareClient.wechat);
+      expect(ShareChannel.qqFriend.client, ShareClient.qq);
+      expect(ShareChannel.qzone.client, ShareClient.qq);
     });
   });
 
@@ -63,10 +78,59 @@ void main() {
 
       final result = await manager.share(
         channel: ShareChannel.wechatSession,
-        content: const ShareContent.image(imagePath: '/tmp/a.png'),
+        content: const ShareContent.image(
+          image: ShareImageSource.file('/tmp/a.png'),
+        ),
       );
 
       expect(result.code, ShareResultCode.unsupportedContent);
+    });
+
+    test('checks installation by client', () async {
+      final provider = _FakeProvider(
+        supportedChannels: {ShareChannel.wechatSession},
+      );
+      final manager = ShareManager();
+      await manager.register(provider);
+
+      final installed = await manager.isInstalled(ShareClient.wechat);
+
+      expect(installed, isTrue);
+      expect(provider.initializeCount, 1);
+    });
+
+    test('returns appNotInstalled before sharing', () async {
+      final provider = _FakeProvider(
+        supportedChannels: {ShareChannel.wechatSession},
+        installed: false,
+      );
+      final manager = ShareManager();
+      await manager.register(provider);
+
+      final result = await manager.share(
+        channel: ShareChannel.wechatSession,
+        content: const ShareContent.webpage(
+          title: 'Title',
+          description: 'Description',
+          url: 'https://example.com',
+        ),
+      );
+
+      expect(result.code, ShareResultCode.appNotInstalled);
+    });
+
+    test('rejects provider channels from another client', () async {
+      final manager = ShareManager();
+
+      expect(
+        manager.register(
+          _FakeProvider(
+            client: ShareClient.wechat,
+            supportedChannels: {ShareChannel.qqFriend},
+          ),
+        ),
+        throwsA(isA<ShareBridgeException>()),
+      );
     });
 
     test('validates empty webpage fields', () async {
@@ -82,6 +146,26 @@ void main() {
       );
 
       expect(result.code, ShareResultCode.invalidArgument);
+    });
+
+    test('validates image source', () async {
+      final manager = ShareManager();
+
+      final emptyFile = await manager.share(
+        channel: ShareChannel.wechatSession,
+        content: const ShareContent.image(
+          image: ShareImageSource.file(''),
+        ),
+      );
+      final emptyBytes = await manager.share(
+        channel: ShareChannel.wechatSession,
+        content: ShareContent.image(
+          image: ShareImageSource.memory(Uint8List(0)),
+        ),
+      );
+
+      expect(emptyFile.code, ShareResultCode.invalidArgument);
+      expect(emptyBytes.code, ShareResultCode.invalidArgument);
     });
 
     test('exposes registered channels', () async {
@@ -109,13 +193,19 @@ void main() {
 final class _FakeProvider implements ShareProvider {
   _FakeProvider({
     required this.supportedChannels,
+    this.client = ShareClient.wechat,
     this.supportsContent = true,
+    this.installed = true,
   });
+
+  @override
+  final ShareClient client;
 
   @override
   final Set<ShareChannel> supportedChannels;
 
   final bool supportsContent;
+  final bool installed;
 
   int initializeCount = 0;
 
@@ -131,7 +221,7 @@ final class _FakeProvider implements ShareProvider {
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) async => true;
+  Future<bool> isClientInstalled() async => installed;
 
   @override
   Future<bool> supports({

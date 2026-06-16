@@ -286,7 +286,7 @@ await shareManager.share(
     title: '今日水果上新',
     description: '点击查看新鲜水果',
     url: 'https://example.com/product/123',
-    thumbPath: '/path/to/thumb.png',
+    thumbnail: ShareImageSource.file('/path/to/thumb.png'),
   ),
 );
 ```
@@ -354,20 +354,56 @@ await ShareBridgeSheet.show(
 
 ## 8. Core API 设计
 
-### 8.1 ShareChannel
+### 8.1 ShareClient 与 ShareChannel
 
-为避免 enum 扩展困难，推荐使用值对象，而不是固定 enum。
+`ShareClient` 表示真实客户端应用，例如微信、QQ。`ShareChannel` 表示某个客户端下的分享目标，例如微信好友、朋友圈、QQ 好友、QQ 空间。
+
+为避免 enum 扩展困难，二者都推荐使用值对象，而不是固定 enum。
 
 ```dart
-class ShareChannel {
+final class ShareClient {
   final String id;
 
-  const ShareChannel(this.id);
+  const ShareClient(this.id);
 
-  static const wechatSession = ShareChannel('wechat.session');
-  static const wechatTimeline = ShareChannel('wechat.timeline');
-  static const qqFriend = ShareChannel('qq.friend');
-  static const qzone = ShareChannel('qq.qzone');
+  static const wechat = ShareClient('wechat');
+  static const qq = ShareClient('qq');
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ShareClient && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+class ShareChannel {
+  final String id;
+  final ShareClient client;
+
+  const ShareChannel({
+    required this.id,
+    required this.client,
+  });
+
+  static const wechatSession = ShareChannel(
+    id: 'wechat.session',
+    client: ShareClient.wechat,
+  );
+  static const wechatTimeline = ShareChannel(
+    id: 'wechat.timeline',
+    client: ShareClient.wechat,
+  );
+  static const qqFriend = ShareChannel(
+    id: 'qq.friend',
+    client: ShareClient.qq,
+  );
+  static const qzone = ShareChannel(
+    id: 'qq.qzone',
+    client: ShareClient.qq,
+  );
 
   @override
   bool operator ==(Object other) {
@@ -385,10 +421,11 @@ class ShareChannel {
 
 优势：
 
-1. 后续可扩展微博、抖音、系统分享等渠道。
-2. 第三方包可以定义自己的 channel。
+1. 后续可扩展微博、抖音、系统分享等客户端和渠道。
+2. 第三方包可以定义自己的 client 和 channel。
 3. 不需要每新增一个平台就修改 core enum。
 4. 必须实现 `==` 和 `hashCode`，否则 `Set<ShareChannel>.contains()` 无法可靠识别第三方包创建的同 ID 渠道。
+5. 安装检测按 `ShareClient` 做，分享目标按 `ShareChannel` 做，避免把 QQ 好友、QQ 空间误当成两个客户端。
 
 ---
 
@@ -405,15 +442,15 @@ sealed class ShareContent {
   }) = ShareTextContent;
 
   const factory ShareContent.image({
-    required String imagePath,
-    String? thumbPath,
+    required ShareImageSource image,
+    ShareImageSource? thumbnail,
   }) = ShareImageContent;
 
   const factory ShareContent.webpage({
     required String title,
     required String description,
     required String url,
-    String? thumbPath,
+    ShareImageSource? thumbnail,
   }) = ShareWebPageContent;
 
   const factory ShareContent.miniProgram({
@@ -422,10 +459,21 @@ sealed class ShareContent {
     required String webpageUrl,
     required String userName,
     required String path,
-    String? thumbPath,
+    ShareImageSource? thumbnail,
   }) = ShareMiniProgramContent;
 }
+
+sealed class ShareImageSource {
+  const factory ShareImageSource.file(String path) = ShareFileImageSource;
+
+  const factory ShareImageSource.memory(
+    Uint8List bytes, {
+    String? mimeType,
+  }) = ShareMemoryImageSource;
+}
 ```
+
+MVP 阶段不内置 `network` 或 `asset` 图片 source。网络下载、鉴权、缓存、Flutter asset 解析都由宿主 App 负责，宿主转换为本地文件或 `Uint8List` 后再传给插件。
 
 MVP 阶段建议只实现：
 
@@ -489,15 +537,15 @@ enum ShareResultCode {
 abstract interface class ShareProvider {
   String get providerId;
 
+  ShareClient get client;
+
   Set<ShareChannel> get supportedChannels;
 
   bool get isInitialized;
 
   Future<void> initialize();
 
-  Future<bool> isInstalled({
-    ShareChannel? channel,
-  });
+  Future<bool> isClientInstalled();
 
   Future<bool> supports({
     required ShareChannel channel,
@@ -519,7 +567,8 @@ abstract interface class ShareProvider {
 4. Provider 内部处理 MethodChannel / Native 回调。
 5. Provider 需要将 Native 错误统一转换为 `ShareResult`。
 6. `initialize()` 不应在隐私协议授权前调用原生 SDK 的敏感初始化逻辑。
-7. `isInstalled(channel: ...)` 支持按渠道判断可用性；当前微信可返回 provider 级别结果，QQ 可在未来区分 QQ / TIM / QZone 能力。
+7. `isClientInstalled()` 只判断当前 provider 对应客户端是否安装；是否支持某个分享目标交给 `supports(channel, content)`。
+8. Provider 声明的 `supportedChannels` 必须都属于自己的 `client`，`ShareManager.register()` 负责校验。
 
 ---
 
@@ -530,6 +579,14 @@ class ShareManager {
   final List<ShareProvider> _providers = [];
 
   Future<void> register(ShareProvider provider) async {
+    for (final channel in provider.supportedChannels) {
+      if (channel.client != provider.client) {
+        throw ShareBridgeException(
+          ShareResultCode.configError,
+          'Provider channel client mismatch.',
+        );
+      }
+    }
     _providers.add(provider);
   }
 
@@ -545,6 +602,21 @@ class ShareManager {
         await provider.initialize();
       }
     }
+  }
+
+  Future<bool> isInstalled(ShareClient client) async {
+    final provider = _findProviderByClient(client);
+    if (provider == null) {
+      return false;
+    }
+    if (!provider.isInitialized) {
+      try {
+        await provider.initialize();
+      } catch (_) {
+        return false;
+      }
+    }
+    return provider.isClientInstalled();
   }
 
   Future<ShareResult> share({
@@ -576,6 +648,13 @@ class ShareManager {
       );
     }
 
+    if (!await provider.isClientInstalled()) {
+      return ShareResult(
+        code: ShareResultCode.appNotInstalled,
+        message: '${channel.client.id} is not installed.',
+      );
+    }
+
     return provider.share(
       channel: channel,
       content: content,
@@ -583,8 +662,16 @@ class ShareManager {
   }
 
   ShareProvider? _findProvider(ShareChannel channel) {
+    final provider = _findProviderByClient(channel.client);
+    if (provider != null && provider.supportedChannels.contains(channel)) {
+      return provider;
+    }
+    return null;
+  }
+
+  ShareProvider? _findProviderByClient(ShareClient client) {
     for (final provider in _providers) {
-      if (provider.supportedChannels.contains(channel)) {
+      if (provider.client == client) {
         return provider;
       }
     }
@@ -598,7 +685,8 @@ class ShareManager {
 1. `register()` 只注册 Provider，不主动初始化原生 SDK，避免和隐私协议授权时机冲突。
 2. 业务方可在用户同意隐私政策后主动调用 `initializeAll()`，也可以由 `share()` 在首次调用时延迟初始化。
 3. `registeredChannels` 供 `share_bridge_widgets` 在未传 `channels` 时生成默认渠道列表。
-4. MVP 阶段 `ShareManager` 不处理并发队列，Provider 内部维护单个 pending request；重复分享返回 `ShareResultCode.busy`。
+4. `isInstalled(ShareClient)` 是 UI 辅助检查，真实分享仍由 `share()` 内部统一返回 `appNotInstalled`。
+5. MVP 阶段 `ShareManager` 不处理并发队列，Provider 内部维护单个 pending request；重复分享返回 `ShareResultCode.busy`。
 
 ---
 
@@ -720,6 +808,9 @@ class WechatShareProvider implements ShareProvider {
   String get providerId => 'wechat';
 
   @override
+  ShareClient get client => ShareClient.wechat;
+
+  @override
   Set<ShareChannel> get supportedChannels => const {
         ShareChannel.wechatSession,
         ShareChannel.wechatTimeline,
@@ -732,9 +823,7 @@ class WechatShareProvider implements ShareProvider {
   Future<void> initialize();
 
   @override
-  Future<bool> isInstalled({
-    ShareChannel? channel,
-  });
+  Future<bool> isClientInstalled();
 
   @override
   Future<bool> supports({
@@ -778,9 +867,9 @@ class WechatShareProvider implements ShareProvider {
 3. 网页分享：
    - `ShareWebPageContent.url` 映射到 `WXWebpageObject.webpageUrl`。
    - `title`、`description` 映射到 `WXMediaMessage.title`、`description`。
-   - `thumbPath` 读取、压缩后写入 `WXMediaMessage.thumbData`，普通消息缩略图必须控制在微信 SDK 限制内。
+   - `ShareImageSource.file` 读取本地路径，`ShareImageSource.memory` 读取字节数据，缩略图压缩后写入 `WXMediaMessage.thumbData`，普通消息缩略图必须控制在微信 SDK 限制内。
 4. 图片分享：
-   - `ShareImageContent.imagePath` 映射到 `WXImageObject`。
+   - `ShareImageContent.image` 映射到 `WXImageObject`。
    - 如果使用 bitmap，需要控制内存；如果使用路径或 byte array，需要按 SDK 当前版本文档确认可用构造方式。
 5. 目标场景：
    - `ShareChannel.wechatSession` 映射 `SendMessageToWX.Req.WXSceneSession`。
@@ -932,15 +1021,16 @@ class QqShareProvider implements ShareProvider {
       };
 
   @override
+  ShareClient get client => ShareClient.qq;
+
+  @override
   bool get isInitialized;
 
   @override
   Future<void> initialize();
 
   @override
-  Future<bool> isInstalled({
-    ShareChannel? channel,
-  });
+  Future<bool> isClientInstalled();
 
   @override
   Future<bool> supports({
@@ -1323,20 +1413,19 @@ docs/privacy.md
 9. 如果 App 使用图片分享，需要说明本地图片读取来源和权限。
 10. 如果平台 SDK 要求声明设备信息、剪切板、应用安装检测等，接入方需要在隐私政策中声明。
 
-API 层面可以提供：
+API 层面：
 
 ```dart
-WechatShareProvider.setPrivacyGranted(true);
-QqShareProvider.setPrivacyGranted(true);
+await QqShareProvider.setPrivacyGranted(true);
 ```
 
 初始化策略：
 
 1. `ShareManager.register()` 只保存 Provider，不调用原生 SDK 初始化。
-2. Provider 的 `initialize()` 必须先检查隐私授权状态。
-3. 用户未授权隐私协议时，`initialize()` 不调用微信/QQ SDK 注册接口。
+2. 微信插件不暴露 `setPrivacyGranted`，宿主 App 应在用户同意隐私政策后再调用微信 provider 初始化或分享。
+3. QQ 插件的 `setPrivacyGranted(true)` 必须真实调用官方 SDK API：Android 为 `Tencent.setIsPermissionGranted(true)`，iOS 为 `TencentOAuth.setIsUserAgreedAuthorization(true)`。
 4. 用户授权后，业务可主动调用 `shareManager.initializeAll()`。
-5. 如果业务没有主动初始化，首次 `share()` 时允许 lazy initialize，但仍必须先检查隐私授权状态。
+5. 如果业务没有主动初始化，首次 `share()` 时允许 lazy initialize。
 
 如果未授权隐私协议，调用分享可以返回：
 

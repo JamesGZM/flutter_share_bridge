@@ -20,14 +20,15 @@ abstract class ShareBridgeQqPlatform extends PlatformInterface {
   Future<void> initialize({
     required String appId,
     String? universalLink,
-    required bool privacyGranted,
   }) {
     throw UnimplementedError('initialize() has not been implemented.');
   }
 
-  Future<bool> isInstalled({
-    ShareChannel? channel,
-  }) {
+  Future<void> setPrivacyGranted(bool granted) {
+    throw UnimplementedError('setPrivacyGranted() has not been implemented.');
+  }
+
+  Future<bool> isInstalled() {
     throw UnimplementedError('isInstalled() has not been implemented.');
   }
 

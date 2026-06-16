@@ -21,6 +21,8 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
     switch call.method {
     case "initialize":
       initialize(call, result: result)
+    case "setPrivacyGranted":
+      setPrivacyGranted(call, result: result)
     case "isInstalled":
       result(QQApiInterface.isQQInstalled() || QQApiInterface.isTIMInstalled())
     case "supports":
@@ -88,8 +90,6 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
     }
 
     let universalLink = arguments["universalLink"] as? String
-    let privacyGranted = arguments["privacyGranted"] as? Bool ?? false
-    TencentOAuth.setIsUserAgreedAuthorization(privacyGranted)
     TencentOAuth.sharedInstance().setupAppId(
       appId,
       enableUniveralLink: universalLink?.isEmpty == false,
@@ -98,6 +98,13 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
     )
     self.appId = appId
     self.universalLink = universalLink
+    result(nil)
+  }
+
+  private func setPrivacyGranted(_ call: FlutterMethodCall, result: FlutterResult) {
+    let arguments = call.arguments as? [String: Any]
+    let granted = arguments?["granted"] as? Bool ?? false
+    TencentOAuth.setIsUserAgreedAuthorization(granted)
     result(nil)
   }
 
@@ -129,7 +136,7 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
       return
     }
 
-    let previewData = previewImageData(path: arguments["thumbPath"] as? String)
+    let previewData = imageData(arguments["thumbnail"])
     guard let object = QQApiURLObject(
       url: url,
       title: title,
@@ -153,15 +160,11 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
       result(resultMap(code: "unsupportedContent", message: "QQ 空间纯图片分享暂不作为 iOS MVP 能力。"))
       return
     }
-    let imagePath = arguments["imagePath"] as? String ?? ""
-    guard !imagePath.isEmpty,
-          FileManager.default.isReadableFile(atPath: imagePath),
-          let imageData = try? Data(contentsOf: URL(fileURLWithPath: imagePath))
-    else {
-      result(resultMap(code: "invalidArgument", message: "imagePath 必须指向可读文件。"))
+    guard let imageData = imageData(arguments["image"]) else {
+      result(resultMap(code: "invalidArgument", message: "image 必须是可读文件或非空字节。"))
       return
     }
-    let previewData = previewImageData(path: arguments["thumbPath"] as? String) ?? imageData
+    let previewData = self.imageData(arguments["thumbnail"]) ?? imageData
     guard let object = QQApiImageObject(
       data: imageData,
       previewImageData: previewData,
@@ -238,14 +241,24 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
     result?(value)
   }
 
-  private func previewImageData(path: String?) -> Data? {
-    guard let path = path,
-          !path.isEmpty,
-          FileManager.default.isReadableFile(atPath: path)
+  private func imageData(_ value: Any?) -> Data? {
+    guard let source = value as? [String: Any],
+          let type = source["type"] as? String
     else {
       return nil
     }
-    return try? Data(contentsOf: URL(fileURLWithPath: path))
+    if type == "file",
+       let path = source["path"] as? String,
+       !path.isEmpty,
+       FileManager.default.isReadableFile(atPath: path) {
+      return try? Data(contentsOf: URL(fileURLWithPath: path))
+    }
+    if type == "memory",
+       let data = source["bytes"] as? FlutterStandardTypedData,
+       !data.data.isEmpty {
+      return data.data
+    }
+    return nil
   }
 
   private func mapResponse(_ resp: QQBaseResp?) -> [String: Any?] {

@@ -60,12 +60,11 @@ class _ShareBridgeExampleHomeState extends State<ShareBridgeExampleHome> {
 
   Future<void> _initialize() async {
     try {
-      WechatShareProvider.setPrivacyGranted(true);
-      QqShareProvider.setPrivacyGranted(true);
+      await QqShareProvider.setPrivacyGranted(true);
       await _manager.register(_wechat);
       await _manager.register(_qq);
-      final wechatInstalled = await _wechat.isInstalled();
-      final qqInstalled = await _qq.isInstalled();
+      final wechatInstalled = await _manager.isInstalled(ShareClient.wechat);
+      final qqInstalled = await _manager.isInstalled(ShareClient.qq);
       setState(() {
         _status =
             '初始化完成。微信：${_yesNo(wechatInstalled)}，QQ/TIM：${_yesNo(qqInstalled)}';

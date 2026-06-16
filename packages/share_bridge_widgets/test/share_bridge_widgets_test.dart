@@ -43,6 +43,9 @@ final class _FakeProvider implements ShareProvider {
   String get providerId => 'fake';
 
   @override
+  ShareClient get client => ShareClient.wechat;
+
+  @override
   Set<ShareChannel> get supportedChannels => {
         ShareChannel.wechatSession,
       };
@@ -56,7 +59,7 @@ final class _FakeProvider implements ShareProvider {
   }
 
   @override
-  Future<bool> isInstalled({ShareChannel? channel}) async => true;
+  Future<bool> isClientInstalled() async => true;
 
   @override
   Future<bool> supports({

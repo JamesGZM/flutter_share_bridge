@@ -7,6 +7,8 @@
 - `share_bridge_wechat`
 - `share_bridge_qq`
 
+示例使用 `ShareManager.isInstalled(ShareClient.wechat)` 和 `ShareManager.isInstalled(ShareClient.qq)` 检查客户端安装状态；实际分享仍直接传 `ShareChannel`。
+
 ## 本地运行
 
 ```sh

@@ -2,7 +2,7 @@
 
 Share Bridge 的纯 Dart 核心库。
 
-这个包定义分享渠道、分享内容、统一结果码、Provider 协议和 `ShareManager`。它不依赖 Flutter、不依赖原生平台 SDK，也不包含任何 UI。
+这个包定义分享客户端、分享渠道、分享内容、统一结果码、Provider 协议和 `ShareManager`。它不依赖 Flutter、不依赖原生平台 SDK，也不包含任何 UI。
 
 ## 使用示例
 
@@ -10,6 +10,8 @@ Share Bridge 的纯 Dart 核心库。
 final manager = ShareManager();
 
 await manager.register(myProvider);
+
+final installed = await manager.isInstalled(ShareClient.wechat);
 
 final result = await manager.share(
   channel: ShareChannel.wechatSession,
@@ -20,6 +22,18 @@ final result = await manager.share(
   ),
 );
 ```
+
+`ShareClient` 表示真实客户端应用，例如微信或 QQ；`ShareChannel` 表示客户端下的分享目标，例如微信好友、朋友圈、QQ 好友或 QQ 空间。安装检查统一使用 `ShareManager.isInstalled(ShareClient.xxx)`，真实分享时 `ShareManager.share()` 仍会内部处理未安装错误。
+
+图片只支持本地文件和内存数据：
+
+```dart
+const ShareContent.image(
+  image: ShareImageSource.file('/path/to/image.png'),
+);
+```
+
+网络图片和 Flutter asset 需要宿主 App 自行下载或读取后，再传入本地文件路径或 `Uint8List`。
 
 ## 范围
 

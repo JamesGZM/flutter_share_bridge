@@ -34,7 +34,7 @@ void main() {
         .setMockMethodCallHandler(channel, null);
   });
 
-  test('initialize passes privacy flag to method channel', () async {
+  test('setPrivacyGranted delegates to method channel', () async {
     MethodCall? receivedCall;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (methodCall) async {
@@ -42,19 +42,18 @@ void main() {
       return null;
     });
 
-    await platform.initialize(
-      appId: '101',
-      privacyGranted: true,
-    );
+    await platform.setPrivacyGranted(true);
 
-    expect(receivedCall?.method, 'initialize');
-    expect(receivedCall?.arguments, containsPair('privacyGranted', true));
+    expect(receivedCall?.method, 'setPrivacyGranted');
+    expect(receivedCall?.arguments, containsPair('granted', true));
   });
 
   test('supports delegates to method channel', () async {
     final supported = await platform.supports(
       channel: ShareChannel.qzone,
-      content: const ShareImageContent(imagePath: '/tmp/a.png'),
+      content: const ShareImageContent(
+        image: ShareImageSource.file('/tmp/a.png'),
+      ),
     );
 
     expect(supported, isTrue);
@@ -72,5 +71,30 @@ void main() {
     );
 
     expect(result.code, ShareResultCode.success);
+  });
+
+  test('shareImage encodes image source', () async {
+    MethodCall? receivedCall;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (methodCall) async {
+      receivedCall = methodCall;
+      return {
+        'code': 'success',
+        'message': null,
+      };
+    });
+
+    await platform.shareImage(
+      requestId: '1',
+      channel: ShareChannel.qqFriend,
+      content: const ShareImageContent(
+        image: ShareImageSource.file('/tmp/a.png'),
+      ),
+    );
+
+    expect(receivedCall?.method, 'shareImage');
+    final arguments = receivedCall?.arguments as Map<Object?, Object?>;
+    expect(arguments['image'], containsPair('type', 'file'));
+    expect(arguments['image'], containsPair('path', '/tmp/a.png'));
   });
 }

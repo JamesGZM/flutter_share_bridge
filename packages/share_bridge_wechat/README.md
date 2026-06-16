@@ -10,8 +10,6 @@ Share Bridge 的微信分享能力包。
 ## 使用形态
 
 ```dart
-WechatShareProvider.setPrivacyGranted(true);
-
 final manager = ShareManager();
 await manager.register(
   WechatShareProvider(
@@ -21,7 +19,7 @@ await manager.register(
 );
 ```
 
-`setPrivacyGranted(true)` 是同步声明：表示宿主 App 已经完成自己的隐私弹窗和用户授权，可以初始化 SDK。它不会弹出隐私弹窗，也不是异步原生调用。
+微信插件不暴露 `setPrivacyGranted`。宿主 App 应按自身隐私合规流程，在用户同意隐私政策后再注册 provider 或调用分享；插件不会伪造微信 SDK 不存在的隐私授权 API。
 
 ## 范围
 
