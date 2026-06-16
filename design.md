@@ -587,6 +587,9 @@ class ShareManager {
         );
       }
     }
+    if (!provider.isInitialized) {
+      await provider.initialize();
+    }
     _providers.add(provider);
   }
 
@@ -682,8 +685,8 @@ class ShareManager {
 
 设计说明：
 
-1. `register()` 只注册 Provider，不主动初始化原生 SDK，避免和隐私协议授权时机冲突。
-2. 业务方可在用户同意隐私政策后主动调用 `initializeAll()`，也可以由 `share()` 在首次调用时延迟初始化。
+1. `register()` 校验并初始化 Provider，初始化成功后才进入 manager。
+2. 业务方应在用户同意隐私政策后注册相关 Provider。
 3. `registeredChannels` 供 `share_bridge_widgets` 在未传 `channels` 时生成默认渠道列表。
 4. `isInstalled(ShareClient)` 是 UI 辅助检查，真实分享仍由 `share()` 内部统一返回 `appNotInstalled`。
 5. MVP 阶段 `ShareManager` 不处理并发队列，Provider 内部维护单个 pending request；重复分享返回 `ShareResultCode.busy`。
@@ -1421,11 +1424,11 @@ await QqShareProvider.setPrivacyGranted(true);
 
 初始化策略：
 
-1. `ShareManager.register()` 只保存 Provider，不调用原生 SDK 初始化。
+1. `ShareManager.register()` 会初始化 Provider；宿主 App 应在用户同意隐私政策后再注册。
 2. 微信插件不暴露 `setPrivacyGranted`，宿主 App 应在用户同意隐私政策后再调用微信 provider 初始化或分享。
 3. QQ 插件的 `setPrivacyGranted(true)` 必须真实调用官方 SDK API：Android 为 `Tencent.setIsPermissionGranted(true)`，iOS 为 `TencentOAuth.setIsUserAgreedAuthorization(true)`。
-4. 用户授权后，业务可主动调用 `shareManager.initializeAll()`。
-5. 如果业务没有主动初始化，首次 `share()` 时允许 lazy initialize。
+4. 用户授权后，业务注册 provider 即完成 SDK 初始化。
+5. `share()` 内仍保留初始化兜底，用于兼容已初始化状态被外部重置等异常情况。
 
 如果未授权隐私协议，调用分享可以返回：
 

@@ -1,5 +1,6 @@
 library;
 
+import 'package:flutter/services.dart';
 import 'package:share_bridge_core/share_bridge_core.dart';
 
 import 'share_bridge_qq_platform_interface.dart';
@@ -52,10 +53,21 @@ final class QqShareProvider implements ShareProvider {
       );
     }
 
-    await _platform.initialize(
-      appId: appId,
-      universalLink: universalLink,
-    );
+    try {
+      await _platform.initialize(
+        appId: appId,
+        universalLink: universalLink,
+      );
+    } on PlatformException catch (error) {
+      throw ShareBridgeException(
+        ShareResultCode.values.firstWhere(
+          (item) => item.name == error.code,
+          orElse: () => ShareResultCode.nativeError,
+        ),
+        error.message ?? 'QQ SDK initialization failed.',
+        cause: error,
+      );
+    }
     _isInitialized = true;
   }
 

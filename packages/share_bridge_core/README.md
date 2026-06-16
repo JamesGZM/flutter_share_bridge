@@ -25,6 +25,8 @@ final result = await manager.share(
 
 `ShareClient` 表示真实客户端应用，例如微信或 QQ；`ShareChannel` 表示客户端下的分享目标，例如微信好友、朋友圈、QQ 好友或 QQ 空间。安装检查统一使用 `ShareManager.isInstalled(ShareClient.xxx)`，真实分享时 `ShareManager.share()` 仍会内部处理未安装错误。
 
+`ShareManager.register(provider)` 会立即初始化 provider。宿主 App 应在用户同意隐私政策并完成必要配置后再注册相关 provider。
+
 图片只支持本地文件和内存数据：
 
 ```dart

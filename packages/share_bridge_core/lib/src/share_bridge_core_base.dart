@@ -213,6 +213,9 @@ final class ShareManager {
         );
       }
     }
+    if (!provider.isInitialized) {
+      await provider.initialize();
+    }
     _providers.removeWhere((item) => item.providerId == provider.providerId);
     _providers.add(provider);
   }

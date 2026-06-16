@@ -48,12 +48,14 @@ void main() {
       expect(result.code, ShareResultCode.unsupportedChannel);
     });
 
-    test('lazy initializes provider before sharing', () async {
+    test('initializes provider when registering', () async {
       final provider = _FakeProvider(
         supportedChannels: {ShareChannel.wechatSession},
       );
       final manager = ShareManager();
       await manager.register(provider);
+
+      expect(provider.initializeCount, 1);
 
       final result = await manager.share(
         channel: ShareChannel.wechatSession,
