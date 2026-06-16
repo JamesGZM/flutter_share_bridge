@@ -1,6 +1,7 @@
 name: share_bridge_wechat
-description: WeChat share-only provider for Share Bridge.
+description: Share Bridge 的微信分享能力插件。
 version: 0.1.0-dev.1
+publish_to: none
 repository: https://github.com/gongziming/flutter_share_bridge
 
 environment:
@@ -11,9 +12,6 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  share_bridge_core: ^0.1.0-dev.1
-
-dependency_overrides:
   share_bridge_core:
     path: ../share_bridge_core
 

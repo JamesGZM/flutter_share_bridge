@@ -1,6 +1,7 @@
 name: share_bridge_widgets
-description: Optional Flutter widgets for the modular Share Bridge sharing packages.
+description: Share Bridge 的可选 Flutter 分享 UI 组件。
 version: 0.1.0-dev.1
+publish_to: none
 repository: https://github.com/gongziming/flutter_share_bridge
 
 environment:
@@ -10,9 +11,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  share_bridge_core: ^0.1.0-dev.1
-
-dependency_overrides:
   share_bridge_core:
     path: ../share_bridge_core
 

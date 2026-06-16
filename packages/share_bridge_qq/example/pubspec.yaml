@@ -25,10 +25,6 @@ dependencies:
     # the parent directory to use the current plugin's version.
     path: ../
 
-dependency_overrides:
-  share_bridge_core:
-    path: ../../share_bridge_core
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,11 +1,11 @@
-# iOS Setup
+# iOS 接入说明
 
-Native iOS SDK integration is not implemented yet.
+iOS 原生 SDK 接入尚未实现。
 
-This document will cover:
+后续本文档会补充：
 
-- WeChat URL Scheme and Universal Link setup.
-- QQ URL Scheme and Universal Link setup.
-- Associated Domains configuration.
-- `LSApplicationQueriesSchemes`.
-- AppDelegate and SceneDelegate callback forwarding.
+- 微信 URL Scheme 与 Universal Link 配置。
+- QQ URL Scheme 与 Universal Link 配置。
+- Associated Domains 配置。
+- `LSApplicationQueriesSchemes`。
+- AppDelegate 与 SceneDelegate 回调转发。

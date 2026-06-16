@@ -1,7 +1,5 @@
-# HarmonyOS Setup
+# HarmonyOS 接入说明
 
-HarmonyOS support is planned for a later milestone.
+HarmonyOS 支持计划放在后续里程碑。
 
-The Dart API should remain compatible with Android and iOS providers. Unsupported
-channels or content types must return explicit `ShareResultCode` values instead
-of failing silently.
+Dart API 应尽量保持与 Android、iOS Provider 一致。当前平台或内容类型不支持时，必须返回明确的 `ShareResultCode`，不能静默失败。

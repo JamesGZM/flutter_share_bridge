@@ -1,13 +1,13 @@
-# Android Setup
+# Android 接入说明
 
-Native Android SDK integration is not implemented yet.
+Android 原生 SDK 接入尚未实现。
 
-This document will cover:
+后续本文档会补充：
 
-- WeChat Open Platform AppID, package name, and signature configuration.
-- WeChat `WXEntryActivity` callback forwarding.
-- QQ Open Platform AppID configuration.
-- QQ Activity result callback handling.
-- Android 11+ package visibility `queries`.
-- FileProvider requirements for local image sharing.
-- R8 / ProGuard rules.
+- 微信开放平台 AppID、包名、签名配置。
+- 微信 `WXEntryActivity` 回调转发。
+- QQ 互联 AppID 配置。
+- QQ Activity result 回调处理。
+- Android 11+ 包可见性 `queries`。
+- 本地图片分享的 FileProvider 配置。
+- R8 / ProGuard 规则。

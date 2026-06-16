@@ -1,22 +1,21 @@
 # share_bridge_widgets
 
-Optional Flutter widgets for Share Bridge.
+Share Bridge 的可选 Flutter UI 组件库。
 
-This package depends only on `share_bridge_core`. It does not depend on WeChat,
-QQ, or any native SDK.
+这个包只依赖 `share_bridge_core`，不依赖微信、QQ 或任何原生 SDK。
 
-## Usage
+## 使用示例
 
 ```dart
 await ShareBridgeSheet.show(
   context: context,
   manager: manager,
   content: const ShareContent.webpage(
-    title: 'Title',
-    description: 'Description',
+    title: '标题',
+    description: '描述',
     url: 'https://example.com',
   ),
 );
 ```
 
-You can also embed `ShareBridgeGrid` in a custom UI.
+如果业务有自己的弹窗，也可以直接嵌入 `ShareBridgeGrid`。

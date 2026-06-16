@@ -1,11 +1,10 @@
 # share_bridge_qq
 
-QQ and QZone share-only provider for Share Bridge.
+Share Bridge 的 QQ 与 QQ 空间分享能力包。
 
-Current status: Dart API and MethodChannel skeleton are available. Native
-Android/iOS QQ SDK integration is not complete yet.
+当前状态：Dart API 和 MethodChannel 骨架已完成；Android / iOS QQ 原生 SDK 接入还未完成。
 
-## Usage Shape
+## 使用形态
 
 ```dart
 await QqShareProvider.setPrivacyGranted(true);
@@ -19,8 +18,8 @@ await manager.register(
 );
 ```
 
-## Scope
+## 范围
 
-- QQ/QZone sharing only.
-- No login, OAuth, or user profile APIs.
-- Android/iOS native SDK integration will be implemented in a later milestone.
+- 只做 QQ / QQ 空间分享。
+- 不做登录、OAuth、用户资料。
+- 原生 SDK 接入会在后续里程碑实现。

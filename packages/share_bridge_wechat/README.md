@@ -1,11 +1,10 @@
 # share_bridge_wechat
 
-WeChat share-only provider for Share Bridge.
+Share Bridge 的微信分享能力包。
 
-Current status: Dart API and MethodChannel skeleton are available. Native
-Android/iOS WeChat SDK integration is not complete yet.
+当前状态：Dart API 和 MethodChannel 骨架已完成；Android / iOS 微信原生 SDK 接入还未完成。
 
-## Usage Shape
+## 使用形态
 
 ```dart
 await WechatShareProvider.setPrivacyGranted(true);
@@ -19,8 +18,8 @@ await manager.register(
 );
 ```
 
-## Scope
+## 范围
 
-- WeChat sharing only.
-- No login, payment, OAuth, or user profile APIs.
-- Android/iOS native SDK integration will be implemented in a later milestone.
+- 只做微信分享。
+- 不做登录、支付、OAuth、用户资料。
+- 原生 SDK 接入会在后续里程碑实现。
