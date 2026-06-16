@@ -6,7 +6,8 @@ Share Bridge 的 QQ 与 QQ 空间分享能力包。
 
 - Android 已完成 QQ / QQ 空间分享的原生调用适配。
 - Android 侧已接入本地官方 SDK：`android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar`。
-- iOS QQ 原生 SDK 接入暂未完成。
+- iOS 已完成 QQ / QQ 空间分享的原生调用适配。
+- iOS 侧已接入本地官方 SDK：`ios/Frameworks/TencentOpenAPI.xcframework`。
 
 ## 使用形态
 
@@ -22,7 +23,7 @@ await manager.register(
 );
 ```
 
-Android 本地调试可以通过示例工程传入 AppID：
+本地调试可以通过示例工程传入 AppID：
 
 ```sh
 cd packages/share_bridge_qq/example
@@ -34,7 +35,8 @@ fvm flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
 - 只做 QQ / QQ 空间分享。
 - 不做登录、OAuth、用户资料。
 - Android 支持 QQ 好友网页分享、QQ 好友图片分享、QQ 空间网页分享。
-- Android 暂不把 QQ 空间纯图片分享作为 MVP 能力。
+- iOS 支持 QQ 好友网页分享、QQ 好友图片分享、QQ 空间网页分享。
+- Android / iOS 暂不把 QQ 空间纯图片分享作为 MVP 能力。
 
 ## Android SDK 接入说明
 
@@ -67,3 +69,28 @@ Tencent.createInstance(appId, context, "${applicationId}.fileprovider")
 - [QQ 互联：分享消息到 QQ（无需 QQ 登录）](https://wiki.connect.qq.com/%E5%88%86%E4%BA%AB%E6%B6%88%E6%81%AF%E5%88%B0qq%EF%BC%88%E6%97%A0%E9%9C%80qq%E7%99%BB%E5%BD%95%EF%BC%89)
 - [QQ 互联：分享到 QQ 空间](https://wiki.connect.qq.com/%E5%88%86%E4%BA%AB%E5%88%B0qq%E7%A9%BA%E9%97%B4)
 - [QQ 互联：分享功能存储权限适配](https://wiki.connect.qq.com/%E5%88%86%E4%BA%AB%E5%8A%9F%E8%83%BD%E5%AD%98%E5%82%A8%E6%9D%83%E9%99%90%E9%80%82%E9%85%8D)
+
+## iOS SDK 接入说明
+
+QQ 互联 iOS SDK 当前使用你本地下载的官方 Lite XCFramework：
+
+```text
+ios/Frameworks/TencentOpenAPI.xcframework
+```
+
+插件已经直接编译依赖该 XCFramework，并使用：
+
+- `TencentOAuth`
+- `QQApiInterface`
+- `QQApiURLObject`
+- `QQApiImageObject`
+- `SendMessageToQQReq`
+
+宿主 App 不需要再单独添加 QQ iOS SDK 依赖，但仍需要配置：
+
+- `CFBundleURLTypes`，scheme 为 `tencent{QQAppID}`。
+- `LSApplicationQueriesSchemes`。
+- SceneDelegate / AppDelegate 回调转发。
+- 如启用 Universal Link，还需要配置 Associated Domains。
+
+完整配置见仓库根目录的 `docs/ios_setup.md`。

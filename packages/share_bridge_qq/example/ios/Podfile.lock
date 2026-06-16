@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - share_bridge_qq (0.1.0-dev.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - share_bridge_qq (from `.symlinks/plugins/share_bridge_qq/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  share_bridge_qq:
+    :path: ".symlinks/plugins/share_bridge_qq/ios"
+
+SPEC CHECKSUMS:
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  share_bridge_qq: 89471d10b854ba0fb4dd77ccd6edc98646e44795
+
+PODFILE CHECKSUM: f8c2dcdfb50bb67645580d28a6bf814fca30bdec
+
+COCOAPODS: 1.16.2
