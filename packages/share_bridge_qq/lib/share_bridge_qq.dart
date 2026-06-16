@@ -77,10 +77,7 @@ final class QqShareProvider implements ShareProvider {
     if (!supportedChannels.contains(channel)) {
       return false;
     }
-    if (channel == ShareChannel.qzone && content is ShareImageContent) {
-      return _platform.supports(channel: channel, content: content);
-    }
-    return content is ShareWebPageContent || content is ShareImageContent;
+    return _platform.supports(channel: channel, content: content);
   }
 
   @override

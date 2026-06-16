@@ -4,6 +4,8 @@
 build/
 coverage/
 
+/sdks/
+
 *.iml
 .idea/
 .vscode/

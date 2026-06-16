@@ -71,6 +71,8 @@ android {
 }
 
 dependencies {
+    implementation(files("libs/open_sdk_3.5.19_r9483ffc7_lite.jar"))
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
 }
