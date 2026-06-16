@@ -58,22 +58,33 @@ class _ShareBridgeExampleHomeState extends State<ShareBridgeExampleHome> {
     return value.isEmpty ? null : value;
   }
 
-  Future<void> _initialize() async {
+  Future<bool> _initialize() async {
+    final messages = <String>[];
+
+    try {
+      await _manager.register(_wechat);
+      final installed = await _manager.isInstalled(ShareClient.wechat);
+      messages.add('微信：${_yesNo(installed)}');
+    } catch (error) {
+      messages.add('微信初始化失败：$error');
+    }
+
     try {
       await QqShareProvider.setPrivacyGranted(true);
-      await _manager.register(_wechat);
       await _manager.register(_qq);
-      final wechatInstalled = await _manager.isInstalled(ShareClient.wechat);
-      final qqInstalled = await _manager.isInstalled(ShareClient.qq);
-      setState(() {
-        _status =
-            '初始化完成。微信：${_yesNo(wechatInstalled)}，QQ/TIM：${_yesNo(qqInstalled)}';
-      });
+      final installed = await _manager.isInstalled(ShareClient.qq);
+      messages.add('QQ/TIM：${_yesNo(installed)}');
     } catch (error) {
-      setState(() {
-        _status = '初始化失败：$error';
-      });
+      messages.add('QQ 初始化失败：$error');
     }
+
+    final hasChannel = _manager.registeredChannels.isNotEmpty;
+    setState(() {
+      _status = hasChannel
+          ? '初始化完成。${messages.join('；')}'
+          : '没有可用分享渠道。${messages.join('；')}';
+    });
+    return hasChannel;
   }
 
   Future<void> _shareSheet() async {
@@ -106,10 +117,11 @@ class _ShareBridgeExampleHomeState extends State<ShareBridgeExampleHome> {
     });
   }
 
-  Future<void> _ensureInitialized() async {
-    if (!_wechat.isInitialized || !_qq.isInitialized) {
-      await _initialize();
+  Future<bool> _ensureInitialized() async {
+    if (_manager.registeredChannels.isEmpty) {
+      return _initialize();
     }
+    return true;
   }
 
   String _yesNo(bool value) => value ? '已安装' : '未安装';

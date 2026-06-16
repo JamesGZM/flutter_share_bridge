@@ -33,6 +33,46 @@ void main() {
 
     expect(provider.shareCount, 1);
   });
+
+  testWidgets('ShareBridgeSheet uses full screen width', (tester) async {
+    final provider = _FakeProvider();
+    final manager = ShareManager();
+    await manager.register(provider);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Builder(
+            builder: (context) {
+              return FilledButton(
+                onPressed: () {
+                  ShareBridgeSheet.show(
+                    context: context,
+                    manager: manager,
+                    content: const ShareContent.webpage(
+                      title: 'Title',
+                      description: 'Description',
+                      url: 'https://example.com',
+                    ),
+                  );
+                },
+                child: const Text('Open'),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    final sheetBox = tester.renderObject<RenderBox>(
+      find.byType(SafeArea).last,
+    );
+    expect(sheetBox.size.width,
+        tester.view.physicalSize.width / tester.view.devicePixelRatio);
+  });
 }
 
 final class _FakeProvider implements ShareProvider {

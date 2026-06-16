@@ -135,6 +135,24 @@ void main() {
       );
     });
 
+    test('keeps provider registered when initialization fails', () async {
+      final provider = _FakeProvider(
+        supportedChannels: {ShareChannel.wechatSession},
+        initializeError: const ShareBridgeException(
+          ShareResultCode.configError,
+          'bad config',
+        ),
+      );
+      final manager = ShareManager();
+
+      await expectLater(
+        manager.register(provider),
+        throwsA(isA<ShareBridgeException>()),
+      );
+
+      expect(manager.registeredChannels, contains(ShareChannel.wechatSession));
+    });
+
     test('validates empty webpage fields', () async {
       final manager = ShareManager();
 
@@ -198,6 +216,7 @@ final class _FakeProvider implements ShareProvider {
     this.client = ShareClient.wechat,
     this.supportsContent = true,
     this.installed = true,
+    this.initializeError,
   });
 
   @override
@@ -208,6 +227,7 @@ final class _FakeProvider implements ShareProvider {
 
   final bool supportsContent;
   final bool installed;
+  final Object? initializeError;
 
   int initializeCount = 0;
 
@@ -219,6 +239,10 @@ final class _FakeProvider implements ShareProvider {
 
   @override
   Future<void> initialize() async {
+    final error = initializeError;
+    if (error != null) {
+      throw error;
+    }
     initializeCount += 1;
   }
 

@@ -2,6 +2,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:share_bridge_core/share_bridge_core.dart';
+import 'package:simple_icons/simple_icons.dart';
 
 export 'package:share_bridge_core/share_bridge_core.dart';
 
@@ -46,9 +47,11 @@ final class ShareBridgeSheet {
     ShareChannelIconBuilder? iconBuilder,
     ShareChannelTitleBuilder? titleBuilder,
   }) {
+    final width = MediaQuery.sizeOf(context).width;
     return showModalBottomSheet<ShareResult>(
       context: context,
       backgroundColor: Colors.transparent,
+      constraints: BoxConstraints.tightFor(width: width),
       builder: (context) {
         final effectiveChannels =
             channels ?? manager.registeredChannels.toList();
@@ -133,41 +136,58 @@ class _ShareBridgeSheetBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.backgroundColor ?? colorScheme.surface,
-        borderRadius: theme.borderRadius,
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: theme.padding,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.handleColor ??
-                      colorScheme.onSurfaceVariant.withAlpha(92),
-                  borderRadius: BorderRadius.circular(2),
+    return SizedBox(
+      width: double.infinity,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.backgroundColor ?? colorScheme.surface,
+          borderRadius: theme.borderRadius,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: theme.padding,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.handleColor ??
+                        colorScheme.onSurfaceVariant.withAlpha(92),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              ShareBridgeGrid(
-                manager: manager,
-                content: content,
-                channels: channels,
-                itemSize: theme.itemSize,
-                spacing: theme.spacing,
-                iconBuilder: iconBuilder,
-                titleBuilder: titleBuilder,
-                onResult: (result) {
-                  Navigator.of(context).pop(result);
-                },
-              ),
-            ],
+                const SizedBox(height: 16),
+                if (channels.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      '暂无可用分享渠道',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  )
+                else
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: ShareBridgeGrid(
+                      manager: manager,
+                      content: content,
+                      channels: channels,
+                      itemSize: theme.itemSize,
+                      spacing: theme.spacing,
+                      iconBuilder: iconBuilder,
+                      titleBuilder: titleBuilder,
+                      onResult: (result) {
+                        Navigator.of(context).pop(result);
+                      },
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -194,6 +214,7 @@ class _ShareChannelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final title = titleBuilder?.call(channel) ?? _defaultTitle(channel);
     final colorScheme = Theme.of(context).colorScheme;
+    final hasCustomIcon = iconBuilder != null;
     return SizedBox(
       width: size,
       child: InkWell(
@@ -209,13 +230,16 @@ class _ShareChannelButton extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    color: colorScheme.surfaceContainerHighest,
+                    color: hasCustomIcon
+                        ? colorScheme.surfaceContainerHighest
+                        : _defaultIconBackgroundColor(channel),
                   ),
                   child: Center(
                     child: iconBuilder?.call(context, channel) ??
-                        Text(
-                          _defaultInitial(channel),
-                          style: Theme.of(context).textTheme.labelLarge,
+                        Icon(
+                          _defaultIcon(channel),
+                          size: 24,
+                          color: _defaultIconColor(channel),
                         ),
                   ),
                 ),
@@ -245,13 +269,29 @@ class _ShareChannelButton extends StatelessWidget {
     };
   }
 
-  String _defaultInitial(ShareChannel channel) {
+  IconData _defaultIcon(ShareChannel channel) {
     return switch (channel.id) {
-      'wechat.session' => '微',
-      'wechat.timeline' => '圈',
-      'qq.friend' => 'Q',
-      'qq.qzone' => '空',
-      _ => '?',
+      'wechat.session' => SimpleIcons.wechat,
+      'wechat.timeline' => SimpleIcons.wechat,
+      'qq.friend' => SimpleIcons.qq,
+      'qq.qzone' => SimpleIcons.qzone,
+      _ => Icons.share,
+    };
+  }
+
+  Color _defaultIconBackgroundColor(ShareChannel channel) {
+    return switch (channel.id) {
+      'wechat.session' || 'wechat.timeline' => SimpleIconColors.wechat,
+      'qq.friend' => SimpleIconColors.qq,
+      'qq.qzone' => SimpleIconColors.qzone,
+      _ => Colors.grey,
+    };
+  }
+
+  Color _defaultIconColor(ShareChannel channel) {
+    return switch (channel.id) {
+      'qq.qzone' => Colors.black87,
+      _ => Colors.white,
     };
   }
 }
