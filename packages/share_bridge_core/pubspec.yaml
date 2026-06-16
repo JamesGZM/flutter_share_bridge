@@ -1,0 +1,13 @@
+name: share_bridge_core
+description: Core abstractions for modular, share-only Flutter social sharing packages.
+version: 0.1.0-dev.1
+repository: https://github.com/gongziming/flutter_share_bridge
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.25.6
