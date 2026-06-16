@@ -34,7 +34,7 @@ class _ExampleHomeState extends State<ExampleHome> {
 
   Future<void> _initialize() async {
     try {
-      await QqShareProvider.setPrivacyGranted(true);
+      QqShareProvider.setPrivacyGranted(true);
       await _provider.initialize();
       final installed = await _provider.isInstalled();
       setState(() {

@@ -1326,8 +1326,8 @@ docs/privacy.md
 API 层面可以提供：
 
 ```dart
-await WechatShareProvider.setPrivacyGranted(true);
-await QqShareProvider.setPrivacyGranted(true);
+WechatShareProvider.setPrivacyGranted(true);
+QqShareProvider.setPrivacyGranted(true);
 ```
 
 初始化策略：

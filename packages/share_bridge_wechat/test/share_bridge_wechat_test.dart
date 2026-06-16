@@ -51,7 +51,7 @@ void main() {
   });
 
   test('initialize requires privacy permission', () async {
-    await WechatShareProvider.setPrivacyGranted(false);
+    WechatShareProvider.setPrivacyGranted(false);
     final provider = WechatShareProvider(appId: 'wx123');
 
     expect(
@@ -61,7 +61,7 @@ void main() {
   });
 
   test('shares webpage through platform after privacy permission', () async {
-    await WechatShareProvider.setPrivacyGranted(true);
+    WechatShareProvider.setPrivacyGranted(true);
     final fakePlatform = MockShareBridgeWechatPlatform();
     ShareBridgeWechatPlatform.instance = fakePlatform;
     final provider = WechatShareProvider(appId: 'wx123');

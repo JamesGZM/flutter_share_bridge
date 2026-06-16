@@ -34,6 +34,23 @@ void main() {
         .setMockMethodCallHandler(channel, null);
   });
 
+  test('initialize passes privacy flag to method channel', () async {
+    MethodCall? receivedCall;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (methodCall) async {
+      receivedCall = methodCall;
+      return null;
+    });
+
+    await platform.initialize(
+      appId: '101',
+      privacyGranted: true,
+    );
+
+    expect(receivedCall?.method, 'initialize');
+    expect(receivedCall?.arguments, containsPair('privacyGranted', true));
+  });
+
   test('supports delegates to method channel', () async {
     final supported = await platform.supports(
       channel: ShareChannel.qzone,

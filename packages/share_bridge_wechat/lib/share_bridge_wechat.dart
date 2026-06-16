@@ -16,7 +16,7 @@ final class WechatShareProvider implements ShareProvider {
 
   static bool _privacyGranted = false;
 
-  static Future<void> setPrivacyGranted(bool granted) async {
+  static void setPrivacyGranted(bool granted) {
     _privacyGranted = granted;
   }
 

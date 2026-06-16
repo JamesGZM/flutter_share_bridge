@@ -13,10 +13,12 @@ class MethodChannelShareBridgeQq extends ShareBridgeQqPlatform {
   Future<void> initialize({
     required String appId,
     String? universalLink,
+    required bool privacyGranted,
   }) async {
     await methodChannel.invokeMethod<void>('initialize', {
       'appId': appId,
       'universalLink': universalLink,
+      'privacyGranted': privacyGranted,
     });
   }
 

@@ -88,7 +88,8 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
     }
 
     let universalLink = arguments["universalLink"] as? String
-    TencentOAuth.setIsUserAgreedAuthorization(true)
+    let privacyGranted = arguments["privacyGranted"] as? Bool ?? false
+    TencentOAuth.setIsUserAgreedAuthorization(privacyGranted)
     TencentOAuth.sharedInstance().setupAppId(
       appId,
       enableUniveralLink: universalLink?.isEmpty == false,

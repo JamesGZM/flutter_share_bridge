@@ -87,8 +87,9 @@ class ShareBridgeQqPlugin :
             return
         }
         val authorities = "${applicationContext.packageName}.fileprovider"
+        val privacyGranted = call.argument<Boolean>("privacyGranted") ?: false
         try {
-            Tencent.setIsPermissionGranted(true)
+            Tencent.setIsPermissionGranted(privacyGranted)
             tencent = Tencent.createInstance(appId, applicationContext, authorities)
             result.success(null)
         } catch (error: Throwable) {

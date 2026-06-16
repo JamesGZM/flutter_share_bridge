@@ -108,7 +108,6 @@ QQ 互联官方 Android 文档仍以下载 Android SDK/Jar 的方式说明接入
 
 暂未处理：
 
-- iOS QQ SDK。
 - QQ 空间纯图片分享。
 - 登录、OAuth、用户资料。
 - QQ 小程序、音乐、视频、文件等扩展类型。
@@ -160,6 +159,8 @@ open_sdk_3.5.19_r9483ffc7_lite.jar
 
 `android:scheme` 必须替换成 `tencent` + QQ AppID，例如 AppID 是 `222222`，则写 `tencent222222`。
 
+原因：Flutter 插件依赖可以通过 manifest merge 带入插件自身声明的权限、包可见性等通用配置，但 QQ / 微信开放平台要求的回调 Activity、URL Scheme、包名、签名和 FileProvider authorities 都属于宿主 App 配置。插件 example 只能给出模板，不能替每个宿主 App 自动生成真实 AppID 和签名配置。
+
 ### 3. QQ 互联配置
 
 需要在 QQ 互联开放平台配置：
@@ -204,12 +205,44 @@ cd packages/share_bridge_qq/example
 fvm flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
 ```
 
+示例工程已经内置 QQ SDK 所需的 `AuthActivity`、`AssistActivity` 和 FileProvider 模板。真机调试前需要把：
+
+```xml
+<data android:scheme="tencentyour_qq_app_id" />
+```
+
+替换为 `tencent` + 你的 QQ AppID，例如：
+
+```xml
+<data android:scheme="tencent222222" />
+```
+
+`--dart-define=QQ_APP_ID=...` 只会传给 Dart 层，不会自动改 Android Manifest。
+
 真机调试前请先确认：
 
 - 手机已安装 QQ。
 - 插件已接入 QQ 官方 Android Lite Jar。
 - 包名、签名、AppID 与 QQ 互联开放平台一致。
 - 如果测试图片分享，FileProvider authorities 与 `${applicationId}.fileprovider` 一致。
+
+## 聚合示例
+
+仓库根目录的 `example/` 是真实宿主视角的聚合示例，同时依赖：
+
+- `share_bridge_core`
+- `share_bridge_widgets`
+- `share_bridge_wechat`
+- `share_bridge_qq`
+
+Android 侧已经放入微信 `WXEntryActivity`、QQ `AuthActivity` / `AssistActivity`、QQ FileProvider 模板。真机调试前仍必须替换占位 AppID、配置开放平台包名和签名。
+
+```sh
+cd example
+fvm flutter run \
+  --dart-define=WECHAT_APP_ID=你的微信AppID \
+  --dart-define=QQ_APP_ID=你的QQ互联AppID
+```
 
 ## QQ 参考资料
 

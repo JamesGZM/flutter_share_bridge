@@ -16,7 +16,7 @@ final class QqShareProvider implements ShareProvider {
 
   static bool _privacyGranted = false;
 
-  static Future<void> setPrivacyGranted(bool granted) async {
+  static void setPrivacyGranted(bool granted) {
     _privacyGranted = granted;
   }
 
@@ -60,6 +60,7 @@ final class QqShareProvider implements ShareProvider {
     await _platform.initialize(
       appId: appId,
       universalLink: universalLink,
+      privacyGranted: _privacyGranted,
     );
     _isInitialized = true;
   }

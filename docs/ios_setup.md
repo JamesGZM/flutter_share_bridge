@@ -116,6 +116,8 @@ fvm flutter run --dart-define=WECHAT_APP_ID=你的微信AppID
 
 注意：dart-define 只传给 Dart 层。iOS 的 URL Scheme、Associated Domains、Universal Link 仍需要在 Xcode 工程和微信开放平台中配置。
 
+原因：Flutter 插件依赖可以带入 SDK 和插件代码，但 URL Scheme、Associated Domains、Bundle ID、开放平台配置都属于宿主 App 配置，插件 example 只能提供模板。
+
 ## QQ 分享
 
 当前 iOS 侧已接入你本地下载的 QQ 官方 Lite XCFramework：
@@ -242,3 +244,21 @@ fvm flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
 ```
 
 注意：dart-define 只传给 Dart 层。iOS 的 URL Scheme、Associated Domains、Universal Link 仍需要在 Xcode 工程和 QQ 互联开放平台中配置。示例工程的 `tencentyour_qq_app_id` 是占位值，真机调试前必须替换。
+
+## 聚合示例
+
+仓库根目录的 `example/` 是真实宿主视角的聚合示例，同时依赖：
+
+- `share_bridge_core`
+- `share_bridge_widgets`
+- `share_bridge_wechat`
+- `share_bridge_qq`
+
+iOS 侧已经放入微信和 QQ 的 URL Scheme、`LSApplicationQueriesSchemes`、SceneDelegate 回调转发模板。真机调试前仍必须替换占位 AppID、配置 Associated Domains 和开放平台 Bundle ID。
+
+```sh
+cd example
+fvm flutter run \
+  --dart-define=WECHAT_APP_ID=你的微信AppID \
+  --dart-define=QQ_APP_ID=你的QQ互联AppID
+```

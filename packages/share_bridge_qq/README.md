@@ -12,7 +12,7 @@ Share Bridge 的 QQ 与 QQ 空间分享能力包。
 ## 使用形态
 
 ```dart
-await QqShareProvider.setPrivacyGranted(true);
+QqShareProvider.setPrivacyGranted(true);
 
 final manager = ShareManager();
 await manager.register(
@@ -23,12 +23,16 @@ await manager.register(
 );
 ```
 
+`setPrivacyGranted(true)` 是同步声明：表示宿主 App 已经完成自己的隐私弹窗和用户授权，可以初始化 SDK。它不会弹出隐私弹窗；QQ 插件会在 `initialize` 时把这个值传给 Android / iOS QQ SDK 的隐私授权 API。
+
 本地调试可以通过示例工程传入 AppID：
 
 ```sh
 cd packages/share_bridge_qq/example
 fvm flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
 ```
+
+Android 真机调试前，还需要把 example 的 `AndroidManifest.xml` 中 `tencentyour_qq_app_id` 替换成 `tencent` + 你的 QQ AppID。`--dart-define` 只传给 Dart 层，不会自动修改 Manifest scheme。
 
 ## 范围
 

@@ -9,6 +9,7 @@ coverage/
 *.iml
 .idea/
 .vscode/
+.codegraph/
 
 .DS_Store
 

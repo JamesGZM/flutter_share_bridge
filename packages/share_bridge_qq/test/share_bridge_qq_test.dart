@@ -8,13 +8,16 @@ class MockShareBridgeQqPlatform
     with MockPlatformInterfaceMixin
     implements ShareBridgeQqPlatform {
   bool initialized = false;
+  bool? receivedPrivacyGranted;
 
   @override
   Future<void> initialize({
     required String appId,
     String? universalLink,
+    required bool privacyGranted,
   }) async {
     initialized = true;
+    receivedPrivacyGranted = privacyGranted;
   }
 
   @override
@@ -59,7 +62,7 @@ void main() {
   });
 
   test('initialize requires privacy permission', () async {
-    await QqShareProvider.setPrivacyGranted(false);
+    QqShareProvider.setPrivacyGranted(false);
     final provider = QqShareProvider(appId: '101');
 
     expect(
@@ -69,7 +72,7 @@ void main() {
   });
 
   test('shares webpage through platform after privacy permission', () async {
-    await QqShareProvider.setPrivacyGranted(true);
+    QqShareProvider.setPrivacyGranted(true);
     final fakePlatform = MockShareBridgeQqPlatform();
     ShareBridgeQqPlatform.instance = fakePlatform;
     final provider = QqShareProvider(appId: '101');
@@ -85,6 +88,7 @@ void main() {
     );
 
     expect(fakePlatform.initialized, isTrue);
+    expect(fakePlatform.receivedPrivacyGranted, isTrue);
     expect(result.code, ShareResultCode.success);
   });
 }

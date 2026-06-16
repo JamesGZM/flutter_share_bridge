@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - share_bridge_qq (0.1.0-dev.1):
+    - Flutter
+  - share_bridge_wechat (0.1.0-dev.1):
+    - Flutter
+    - WechatOpenSDK-XCFramework (= 2.0.5)
+  - WechatOpenSDK-XCFramework (2.0.5)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - share_bridge_qq (from `.symlinks/plugins/share_bridge_qq/ios`)
+  - share_bridge_wechat (from `.symlinks/plugins/share_bridge_wechat/ios`)
+
+SPEC REPOS:
+  trunk:
+    - WechatOpenSDK-XCFramework
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  share_bridge_qq:
+    :path: ".symlinks/plugins/share_bridge_qq/ios"
+  share_bridge_wechat:
+    :path: ".symlinks/plugins/share_bridge_wechat/ios"
+
+SPEC CHECKSUMS:
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  share_bridge_qq: 89471d10b854ba0fb4dd77ccd6edc98646e44795
+  share_bridge_wechat: c8aa77def9ec912d362b013ed995a94bf94cb9b8
+  WechatOpenSDK-XCFramework: ff342ae616bb86df3d236aca38059dfd4bc4a949
+
+PODFILE CHECKSUM: 47a757a7853adf00f34d8294fd2037725e0d47ac
+
+COCOAPODS: 1.16.2
