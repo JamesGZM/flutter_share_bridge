@@ -5,7 +5,7 @@ Share Bridge 的微信分享能力包。
 当前状态：
 
 - Android：已接入微信 OpenSDK，可发起网页 / 图片分享并等待 `WXEntryActivity` 回调。
-- iOS：Dart API 和 MethodChannel 骨架已完成，原生 SDK 接入还未完成。
+- iOS：已接入 `WechatOpenSDK-XCFramework`，可发起网页 / 图片分享并处理 URL Scheme / Universal Link 回调。
 
 ## 使用形态
 
@@ -46,4 +46,27 @@ class WXEntryActivity : ShareBridgeWechatEntryActivity()
     android:exported="true"
     android:launchMode="singleTop"
     android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+```
+
+## iOS 回调接入
+
+宿主 App 需要配置：
+
+- URL Scheme：通常为微信 AppID。
+- Universal Link：需要和微信开放平台后台一致。
+- Associated Domains：形如 `applinks:example.com`。
+- `LSApplicationQueriesSchemes`：至少包含 `weixin`、`wechat`、`weixinULAPI`、`weixinURLParamsAPI`。
+
+如果使用 SceneDelegate，需要在 `scene(_:openURLContexts:)` 和 `scene(_:continue:)` 中转发给插件：
+
+```swift
+import share_bridge_wechat
+
+if ShareBridgeWechatPlugin.handleOpen(url) {
+  return
+}
+
+if ShareBridgeWechatPlugin.handleOpenUniversalLink(userActivity) {
+  return
+}
 ```

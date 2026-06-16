@@ -4,17 +4,18 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'share_bridge_wechat'
-  s.version          = '0.0.1'
-  s.summary          = 'A new Flutter plugin project.'
+  s.version          = '0.1.0-dev.1'
+  s.summary          = 'Share Bridge WeChat share-only plugin.'
   s.description      = <<-DESC
-A new Flutter plugin project.
+Share Bridge WeChat share-only plugin.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/gongziming/flutter_share_bridge'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'gongziming' => '934249779@qq.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
+  s.dependency 'WechatOpenSDK-XCFramework', '2.0.5'
   s.platform = :ios, '13.0'
 
   # Flutter.framework does not contain a i386 slice.
