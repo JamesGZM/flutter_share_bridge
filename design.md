@@ -8,6 +8,45 @@
 
 ---
 
+## 0. 事实依据与参考范围
+
+本文档的原生接入设计以官方 SDK 文档和成熟开源 Flutter 插件的公开实现经验为依据，不以猜测为准。
+
+主要事实依据：
+
+1. 微信开放平台移动应用文档：
+   - Android 分享通过 `WXMediaMessage` 与 `SendMessageToWX.Req` 构造请求。
+   - 微信好友、朋友圈、收藏通过 `SendMessageToWX.Req.scene` 区分，例如 `WXSceneSession`、`WXSceneTimeline`。
+   - Android 回调入口依赖宿主包名下的 `wxapi/WXEntryActivity`，并通过 `IWXAPIEventHandler.onResp` 接收结果。
+   - iOS 需要 `WXApi.registerApp(..., universalLink: ...)`、URL Scheme、Universal Link、`handleOpenURL` / `handleOpenUniversalLink` 回调转发。
+   - 微信普通分享缩略图 `thumbData` 有大小限制，Android 文档示例说明普通消息缩略图不超过 32KB，小程序封面图限制不同，不能混用。
+2. QQ 互联移动应用文档：
+   - Android QQ 好友分享使用 `Tencent.shareToQQ(Activity, Bundle, IUiListener)`，不需要 QQ 登录授权，依赖手机 QQ 当前登录态。
+   - Android QQ 空间分享使用 `shareToQzone` / QZone 相关参数，和 QQ 好友参数不是完全同一套能力。
+   - QQ 纯图片分享有大小限制，官方文档示例指出纯图本地文件不应大于 5MB。
+   - Android Q 以后分享本地图片要处理文件读权限；QQ 互联 SDK 3.3.8 与手 Q 8.2.8 起支持通过 `FileProvider` 方式分享文件。
+   - iOS QQ 回调需要在 `openURL` / Universal Link 回调中转给 `QQApiInterface.handleOpenURL(..., delegate: ...)`，结果通过 `QQApiInterfaceDelegate.onResp` 返回。
+3. Android 官方文档：
+   - Android 11 以后存在包可见性限制；库如需查询或拉起目标 App，应在 AAR manifest 中声明 `<queries>`，或明确要求宿主 App 声明。
+4. Apple 官方文档：
+   - Universal Links 依赖 Associated Domains capability 与 `apple-app-site-association` 文件，iOS 9+ 支持。
+5. Flutter 官方文档：
+   - 原生 SDK 接入应通过 Platform Channels；MethodChannel 用于请求/响应，事件流或 native 主动回调用 EventChannel 或 MethodChannel 回调均可。
+   - Federated plugins 是 Flutter 官方推荐的插件拆分方式之一，适合把平台接口、平台实现、面向用户 API 拆开。
+6. 开源实现参考：
+   - `OpenFlutter/fluwx`：微信 Flutter 插件，覆盖分享、支付、登录、小程序等能力；本文档只参考其微信 SDK 注册、iOS 配置、Android 回调接入经验，不继承其“大而全”能力边界。
+   - `rxreader/tencent_kit`：QQ/Tencent Flutter 插件，覆盖 QQ 登录/分享及 HarmonyOS 部分能力；本文档只参考其 QQ 分享能力矩阵、隐私授权前置、Universal Link 配置经验。
+   - `fluttercommunity/plus_plugins/share_plus`：系统分享插件，参考其返回结果抽象和平台分享限制说明；本项目不使用系统分享替代微信/QQ 官方 SDK 分享。
+
+设计约束：
+
+1. 官方 SDK 明确要求的配置，必须在 README 和 setup 文档中列为必填或条件必填。
+2. 开源库只能作为工程经验参考，不能替代官方 SDK 文档。
+3. 如果官方文档与开源实现冲突，以官方文档为准。
+4. SDK 能力随版本变化，正式开发前要锁定并记录微信 SDK、QQ SDK、Flutter、Android Gradle Plugin、Kotlin、iOS deployment target 的最低版本。
+
+---
+
 ## 1. 背景
 
 当前 Flutter 项目需要支持微信、QQ 等平台分享能力，但现有第三方插件通常存在以下问题：
@@ -323,12 +362,21 @@ await ShareBridgeSheet.show(
 class ShareChannel {
   final String id;
 
-  const ShareChannel._(this.id);
+  const ShareChannel(this.id);
 
-  static const wechatSession = ShareChannel._('wechat.session');
-  static const wechatTimeline = ShareChannel._('wechat.timeline');
-  static const qqFriend = ShareChannel._('qq.friend');
-  static const qzone = ShareChannel._('qq.qzone');
+  static const wechatSession = ShareChannel('wechat.session');
+  static const wechatTimeline = ShareChannel('wechat.timeline');
+  static const qqFriend = ShareChannel('qq.friend');
+  static const qzone = ShareChannel('qq.qzone');
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is ShareChannel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 
   @override
   String toString() => id;
@@ -340,6 +388,7 @@ class ShareChannel {
 1. 后续可扩展微博、抖音、系统分享等渠道。
 2. 第三方包可以定义自己的 channel。
 3. 不需要每新增一个平台就修改 core enum。
+4. 必须实现 `==` 和 `hashCode`，否则 `Set<ShareChannel>.contains()` 无法可靠识别第三方包创建的同 ID 渠道。
 
 ---
 
@@ -427,6 +476,7 @@ enum ShareResultCode {
   permissionDenied,
   nativeError,
   timeout,
+  busy,
   unknown,
 }
 ```
@@ -441,9 +491,13 @@ abstract interface class ShareProvider {
 
   Set<ShareChannel> get supportedChannels;
 
+  bool get isInitialized;
+
   Future<void> initialize();
 
-  Future<bool> isInstalled();
+  Future<bool> isInstalled({
+    ShareChannel? channel,
+  });
 
   Future<bool> supports({
     required ShareChannel channel,
@@ -464,6 +518,8 @@ abstract interface class ShareProvider {
 3. Provider 不关心 UI。
 4. Provider 内部处理 MethodChannel / Native 回调。
 5. Provider 需要将 Native 错误统一转换为 `ShareResult`。
+6. `initialize()` 不应在隐私协议授权前调用原生 SDK 的敏感初始化逻辑。
+7. `isInstalled(channel: ...)` 支持按渠道判断可用性；当前微信可返回 provider 级别结果，QQ 可在未来区分 QQ / TIM / QZone 能力。
 
 ---
 
@@ -474,8 +530,21 @@ class ShareManager {
   final List<ShareProvider> _providers = [];
 
   Future<void> register(ShareProvider provider) async {
-    await provider.initialize();
     _providers.add(provider);
+  }
+
+  Set<ShareChannel> get registeredChannels {
+    return {
+      for (final provider in _providers) ...provider.supportedChannels,
+    };
+  }
+
+  Future<void> initializeAll() async {
+    for (final provider in _providers) {
+      if (!provider.isInitialized) {
+        await provider.initialize();
+      }
+    }
   }
 
   Future<ShareResult> share({
@@ -489,6 +558,10 @@ class ShareManager {
         code: ShareResultCode.unsupportedChannel,
         message: 'No provider registered for this channel.',
       );
+    }
+
+    if (!provider.isInitialized) {
+      await provider.initialize();
     }
 
     final supported = await provider.supports(
@@ -519,6 +592,13 @@ class ShareManager {
   }
 }
 ```
+
+设计说明：
+
+1. `register()` 只注册 Provider，不主动初始化原生 SDK，避免和隐私协议授权时机冲突。
+2. 业务方可在用户同意隐私政策后主动调用 `initializeAll()`，也可以由 `share()` 在首次调用时延迟初始化。
+3. `registeredChannels` 供 `share_bridge_widgets` 在未传 `channels` 时生成默认渠道列表。
+4. MVP 阶段 `ShareManager` 不处理并发队列，Provider 内部维护单个 pending request；重复分享返回 `ShareResultCode.busy`。
 
 ---
 
@@ -646,10 +726,15 @@ class WechatShareProvider implements ShareProvider {
       };
 
   @override
+  bool get isInitialized;
+
+  @override
   Future<void> initialize();
 
   @override
-  Future<bool> isInstalled();
+  Future<bool> isInstalled({
+    ShareChannel? channel,
+  });
 
   @override
   Future<bool> supports({
@@ -682,6 +767,29 @@ class WechatShareProvider implements ShareProvider {
 9. 未安装微信时返回 `appNotInstalled`。
 10. 参数不合法时返回 `invalidArgument`。
 
+官方 SDK 映射：
+
+1. 初始化：
+   - 使用 `WXAPIFactory.createWXAPI(context, appId, true)` 获取 `IWXAPI`。
+   - 使用 `api.registerApp(appId)` 注册到微信。
+2. 安装与能力检测：
+   - 使用 `api.isWXAppInstalled()` 判断微信是否安装。
+   - 朋友圈需要额外确认当前微信版本支持对应 scene；不支持时返回 `unsupportedChannel`。
+3. 网页分享：
+   - `ShareWebPageContent.url` 映射到 `WXWebpageObject.webpageUrl`。
+   - `title`、`description` 映射到 `WXMediaMessage.title`、`description`。
+   - `thumbPath` 读取、压缩后写入 `WXMediaMessage.thumbData`，普通消息缩略图必须控制在微信 SDK 限制内。
+4. 图片分享：
+   - `ShareImageContent.imagePath` 映射到 `WXImageObject`。
+   - 如果使用 bitmap，需要控制内存；如果使用路径或 byte array，需要按 SDK 当前版本文档确认可用构造方式。
+5. 目标场景：
+   - `ShareChannel.wechatSession` 映射 `SendMessageToWX.Req.WXSceneSession`。
+   - `ShareChannel.wechatTimeline` 映射 `SendMessageToWX.Req.WXSceneTimeline`。
+6. 回调：
+   - 宿主 App 包名下必须存在 `wxapi/WXEntryActivity`。
+   - `WXEntryActivity` 实现 `IWXAPIEventHandler`，在 `onResp(BaseResp resp)` 中把 `errCode`、`errStr`、`transaction` 转发给插件。
+   - `SendMessageToWX.Req.transaction` 用作 requestId 承载字段，避免多个请求无法匹配。
+
 Android 目录建议：
 
 ```text
@@ -711,6 +819,24 @@ share_bridge_wechat/
 8. 未安装微信检测。
 9. Info.plist 配置说明。
 10. 隐私合规说明。
+
+iOS SDK 映射：
+
+1. 初始化：
+   - 使用 `WXApi.registerApp(appId, universalLink: universalLink)`。
+   - `universalLink` 仅 iOS 使用，但 Dart API 可统一保留。
+2. 配置：
+   - `CFBundleURLTypes` 中 URL Scheme 通常为微信 AppID。
+   - `LSApplicationQueriesSchemes` 至少需要覆盖微信 SDK 文档要求的 scheme。
+   - Associated Domains 需要配置 `applinks:` 域名，并保证服务端存在合法 `apple-app-site-association`。
+3. 回调：
+   - URL Scheme 回调通过微信 SDK 文档中的 `handleOpenURL` / 当前版本等价 API 转发。
+   - Universal Link 回调通过微信 SDK 文档中的 `handleOpenUniversalLink` / 当前版本等价 API 转发。
+   - 需要同时说明 AppDelegate 与 SceneDelegate 两种宿主接入方式。
+4. 结果映射：
+   - `onResp` 中微信 SDK 成功码映射 `success`。
+   - 用户取消映射 `cancelled`。
+   - 普通错误映射 `nativeError`，配置类错误尽量映射 `configError`。
 
 iOS 目录建议：
 
@@ -771,6 +897,8 @@ qq.qzone
 图片分享
 ```
 
+说明：QQ 好友图片分享作为 MVP 明确支持；QQ 空间图片分享按官方 SDK 当前版本和真机验证结果决定，不能稳定支持的平台返回 `unsupportedContent`。
+
 ### 11.3 后续支持内容
 
 ```text
@@ -804,10 +932,15 @@ class QqShareProvider implements ShareProvider {
       };
 
   @override
+  bool get isInitialized;
+
+  @override
   Future<void> initialize();
 
   @override
-  Future<bool> isInstalled();
+  Future<bool> isInstalled({
+    ShareChannel? channel,
+  });
 
   @override
   Future<bool> supports({
@@ -840,6 +973,37 @@ class QqShareProvider implements ShareProvider {
 9. 分享失败结果映射。
 10. 用户取消结果映射。
 
+官方 SDK 映射：
+
+1. 初始化：
+   - 使用 `Tencent.createInstance(appId, context)` 初始化。
+   - 如果需要支持 Android Q/Android 11 以后本地图片文件分享，优先使用 `Tencent.createInstance(appId, context, authorities)`，其中 `authorities` 默认建议为 `${applicationId}.fileprovider`。
+2. QQ 好友网页分享：
+   - 使用 `Tencent.shareToQQ(Activity activity, Bundle params, IUiListener listener)`。
+   - `ShareWebPageContent` 映射为 `QQShare.SHARE_TO_QQ_TYPE_DEFAULT`。
+   - 标题、摘要、目标 URL、缩略图 URL/路径分别映射到 QQ SDK 对应 `Bundle` key。
+3. QQ 好友图片分享：
+   - 使用 `QQShare.SHARE_TO_QQ_TYPE_IMAGE`。
+   - 本地纯图片文件要校验文件存在、可读、大小限制；官方示例中纯图本地文件超过 5MB 会回调错误。
+4. QQ 空间分享：
+   - 不要简单复用 `shareToQQ` 的所有参数。QZone 有独立接口和能力限制。
+   - MVP 支持 QZone 网页分享；QZone 图片分享需要以官方 SDK 当前能力为准，若只支持图文/说说场景，应在 `supports()` 中按内容返回 `unsupportedContent`。
+5. 回调：
+   - `IUiListener.onComplete` 映射 `success`。
+   - `IUiListener.onCancel` 映射 `cancelled`。
+   - `IUiListener.onError` 映射 `nativeError` 或 `invalidArgument`。
+   - 如果 SDK 返回版本不支持、参数错误等 message，需要在 mapper 中细分到 `unsupportedContent`、`unsupportedChannel`、`invalidArgument`。
+6. Activity 结果：
+   - 分享回调依赖 Activity 生命周期时，需要在 `onActivityResult` 中调用 QQ SDK 对应处理方法。
+   - Flutter 插件必须实现 `ActivityAware`，并在 Activity detach / reattach 时清理或恢复 pending request。
+
+Android 文件分享要求：
+
+1. Android Q 以后，直接把外部存储路径传给 QQ 可能导致手 Q 无法读取。
+2. 插件应优先把待分享图片复制到 App 可控缓存目录，再通过 `FileProvider` 授权给 QQ。
+3. README 必须说明宿主 App 是否需要合并 `provider`、`file_paths.xml`、`queries`。
+4. 如果用户传入的图片路径不可读，返回 `invalidArgument`。
+
 Android 目录建议：
 
 ```text
@@ -868,6 +1032,22 @@ share_bridge_qq/
 7. 未安装 QQ 检测。
 8. Info.plist 配置说明。
 9. 隐私合规说明。
+
+iOS SDK 映射：
+
+1. 初始化：
+   - 使用 QQ 互联 iOS SDK 当前版本要求的 AppID 注册方式。
+   - Universal Link 路径应和 QQ 互联后台配置一致。
+2. 回调：
+   - URL Scheme 回调中调用 `QQApiInterface.handleOpenURL(..., delegate: ...)`。
+   - Universal Link 回调中调用 QQ SDK 当前版本要求的 Universal Link 处理 API。
+   - 结果通过 `QQApiInterfaceDelegate.onResp(QQBaseResp *)` 接收。
+3. 结果映射：
+   - `QQBaseResp.resultCode` / `rthCode` 成功值映射 `success`。
+   - 取消映射 `cancelled`。
+   - `rthMsg` 仅作为调试 message，不能直接作为用户可见文案。
+4. SceneDelegate：
+   - 如果 SDK 当前版本不支持或接入复杂，README 必须明确 AppDelegate / SceneDelegate 兼容要求。
 
 目录建议：
 
@@ -921,9 +1101,9 @@ share_bridge_wechat
 ```text
 initialize
 isInstalled
+supports
 shareWebPage
 shareImage
-shareMiniProgram
 ```
 
 事件：
@@ -945,6 +1125,7 @@ share_bridge_qq
 ```text
 initialize
 isInstalled
+supports
 shareWebPage
 shareImage
 ```
@@ -984,8 +1165,16 @@ Native 回调时携带 requestId：
 MVP 阶段可以限制同一时间只允许一个分享请求：
 
 ```text
-如果已有分享请求未完成，再次调用 share() 返回 failed 或 busy。
+如果已有分享请求未完成，再次调用 share() 返回 busy。
 ```
+
+实现要求：
+
+1. Dart 层生成 `requestId`，并传给 Native。
+2. 微信 Android 可把 `requestId` 写入 `SendMessageToWX.Req.transaction`。
+3. QQ Android 的 `IUiListener` 与发起请求绑定，Native 层仍需保存当前 pending requestId。
+4. iOS 回调如果 SDK 原始响应不携带 requestId，MVP 只允许一个 pending request，通过当前 pending requestId 匹配。
+5. Native 回调到 Dart 建议使用 MethodChannel 反向调用 `onShareResult`；如果后续需要广播安装状态、SDK 日志或生命周期事件，再引入 EventChannel。
 
 ---
 
@@ -998,7 +1187,7 @@ MVP 阶段：
 | 微信好友  |   支持 |   支持 |   暂缓 |      后续 |
 | 微信朋友圈 |   支持 |   支持 |   暂缓 | 不作为 MVP |
 | QQ 好友 |   支持 |   支持 |   暂缓 | 不作为 MVP |
-| QQ 空间 |   支持 |   支持 |   暂缓 | 不作为 MVP |
+| QQ 空间 |   支持 | 条件支持 |   暂缓 | 不作为 MVP |
 
 说明：
 
@@ -1006,6 +1195,7 @@ MVP 阶段：
 2. 文本分享虽然实现简单，但不同平台限制不一致，建议放到第二阶段。
 3. 小程序分享涉及参数、审核、平台限制，建议单独设计。
 4. 文件、音乐、视频不纳入首版。
+5. QQ 空间图片能力在 Android/iOS SDK 上存在不同对象和参数路径；MVP 只承诺官方 SDK 当前版本明确支持、真机验证通过的路径。若本地纯图片在目标平台不可稳定分享，`supports()` 必须返回 `unsupportedContent`，不能伪成功。
 
 ---
 
@@ -1140,6 +1330,14 @@ await WechatShareProvider.setPrivacyGranted(true);
 await QqShareProvider.setPrivacyGranted(true);
 ```
 
+初始化策略：
+
+1. `ShareManager.register()` 只保存 Provider，不调用原生 SDK 初始化。
+2. Provider 的 `initialize()` 必须先检查隐私授权状态。
+3. 用户未授权隐私协议时，`initialize()` 不调用微信/QQ SDK 注册接口。
+4. 用户授权后，业务可主动调用 `shareManager.initializeAll()`。
+5. 如果业务没有主动初始化，首次 `share()` 时允许 lazy initialize，但仍必须先检查隐私授权状态。
+
 如果未授权隐私协议，调用分享可以返回：
 
 ```text
@@ -1162,6 +1360,23 @@ permissionDenied
 6. FlutterEngine 多实例场景。
 7. 应用从微信 / QQ 返回时的结果派发。
 
+Android 回调路由原则：
+
+1. 微信：
+   - `WXEntryActivity` 是宿主 App 包名相关的固定入口，插件不能假设自己包名下的 Activity 会被微信回调。
+   - 插件 README 必须要求宿主 App 添加或继承一个 `WXEntryActivity`，并把回调转发给插件提供的静态 dispatcher。
+   - dispatcher 只保存弱引用或明确生命周期绑定，避免 Activity 泄漏。
+2. QQ：
+   - `shareToQQ` / `shareToQzone` 依赖当前 `Activity`，插件必须实现 `ActivityAware`。
+   - 如果 Activity detached 时仍有 pending request，应返回 `nativeError` 或在 reattach 后继续等待，不能永久挂起。
+   - `onActivityResult` 与 `IUiListener` 的调用顺序按 QQ SDK 当前文档和 demo 验证后固化。
+3. 多 FlutterEngine：
+   - MVP 不支持同一进程多个 FlutterEngine 同时发起分享。
+   - Native dispatcher 只允许一个 active engine/pending request；冲突时返回 `busy`。
+4. 冷启动：
+   - 如果微信/QQ 回调导致 App 冷启动，Native 层可以先缓存最近一次回调。
+   - Dart engine 完成注册后再派发；若没有 pending request，应作为 orphan callback 记录日志并忽略。
+
 ### 17.2 iOS
 
 需要处理：
@@ -1172,6 +1387,14 @@ permissionDenied
 4. SceneDelegate 场景。
 5. 分享结果回调。
 6. App 冷启动回调场景。
+
+iOS 回调路由原则：
+
+1. 插件必须提供 AppDelegate 接入说明。
+2. 插件必须提供 SceneDelegate 接入说明；若某 SDK 版本存在限制，需要在 README 明确最低支持方式。
+3. URL Scheme 与 Universal Link 都要转发给对应 SDK。
+4. iOS MVP 同样只允许一个 pending request；回调不带 requestId 时使用当前 pending request 匹配。
+5. 如果宿主没有转发回调，分享请求最终通过 timeout 返回 `timeout`，并在 debug 日志提示配置缺失。
 
 ### 17.3 HarmonyOS
 
@@ -1348,6 +1571,27 @@ share_port_qq
 
 破坏性变更必须提升 minor 或 major，并写清 migration guide。
 
+### 20.2.1 原生 SDK 与工具链锁定
+
+每次发布必须在 release notes 中记录：
+
+1. 微信 Android SDK 版本。
+2. 微信 iOS SDK 版本。
+3. QQ Android SDK 版本。
+4. QQ iOS SDK 版本。
+5. Flutter 最低版本。
+6. Dart 最低版本。
+7. Android Gradle Plugin、Gradle、Kotlin 最低版本。
+8. iOS deployment target。
+9. Xcode / Swift 最低验证版本。
+10. HarmonyOS SDK / Flutter HarmonyOS 版本，若该版本包含 HarmonyOS 能力。
+
+原因：
+
+1. 微信、QQ SDK 的回调、Universal Link、隐私授权和文件分享行为会随版本变化。
+2. Android 包可见性、FileProvider、Activity result 行为与 targetSdk / AGP 有关。
+3. iOS Universal Link、SceneDelegate、LSApplicationQueriesSchemes 行为与 iOS SDK 和宿主工程配置有关。
+
 ---
 
 ### 20.3 README 要求
@@ -1472,9 +1716,10 @@ share_bridge_wechat 0.1.0-dev
 2. Android QQ 图片分享。
 3. iOS QQ 网页分享。
 4. iOS QQ 图片分享。
-5. QQ 空间分享。
-6. 分享结果回调。
-7. 文档配置说明。
+5. QQ 空间网页分享。
+6. QQ 空间图片分享按官方 SDK 当前版本能力验证；若某平台不可稳定支持，MVP 明确返回 `unsupportedContent`。
+7. 分享结果回调。
+8. 文档配置说明。
 
 交付物：
 
@@ -1609,7 +1854,7 @@ Associated Domains 错误
 ```text
 share_bridge_core
 share_bridge_wechat Android/iOS 网页分享、图片分享
-share_bridge_qq Android/iOS 网页分享、图片分享
+share_bridge_qq Android/iOS 网页分享、QQ 好友图片分享、QQ 空间图片能力验证
 share_bridge_widgets 基础分享面板
 basic_example
 widgets_example
@@ -1647,7 +1892,7 @@ MVP 完成标准：
 8. QQ 好友网页分享成功。
 9. QQ 空间网页分享成功。
 10. QQ 好友图片分享成功。
-11. QQ 空间图片分享成功。
+11. QQ 空间图片分享在官方 SDK 当前版本支持且真机验证通过的平台成功；不可稳定支持的平台返回 `unsupportedContent`。
 12. 用户取消分享时返回 `cancelled`。
 13. 目标 App 未安装时返回 `appNotInstalled`。
 14. 未注册渠道时返回 `unsupportedChannel`。
@@ -1681,3 +1926,28 @@ Flutter 层提供稳定、轻量、可扩展 API
 ```
 
 该结构适合开源维护，也适合后续扩展 HarmonyOS、微博、抖音、系统分享等能力。
+
+---
+
+## 26. 参考资料
+
+官方文档：
+
+1. 微信开放平台移动应用文档：https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Resource_Center_Homepage.html
+2. 微信 Android 分享与收藏文档：https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Share_and_Favorites/Android.html
+3. 微信 iOS 接入指南：https://developers.weixin.qq.com/doc/oplatform/Mobile_App/Access_Guide/iOS.html
+4. QQ 互联分享消息到 QQ：https://wiki.connect.qq.com/分享消息到qq（无需qq登录）
+5. QQ 互联分享到 QQ 空间：https://wiki.connect.qq.com/分享到qq空间（无需qq登录）
+6. QQ 互联分享功能存储权限适配：https://wiki.connect.qq.com/分享功能存储权限适配
+7. QQ 互联 iOS SDK API 使用说明：https://wiki.connect.qq.com/ios_sdk_api_使用说明
+8. Android package visibility：https://developer.android.com/training/package-visibility/declaring
+9. Apple Associated Domains：https://developer.apple.com/documentation/xcode/supporting-associated-domains
+10. Apple Universal Links archive：https://developer.apple.com/library/archive/documentation/General/Conceptual/AppSearch/UniversalLinks.html
+11. Flutter Platform Channels：https://docs.flutter.dev/platform-integration/platform-channels
+12. Flutter packages and federated plugins：https://docs.flutter.dev/packages-and-plugins/developing-packages
+
+开源实现参考：
+
+1. OpenFlutter/fluwx：https://github.com/OpenFlutter/fluwx
+2. rxreader/tencent_kit：https://github.com/rxreader/tencent_kit
+3. fluttercommunity/share_plus：https://github.com/fluttercommunity/plus_plugins/tree/main/packages/share_plus/share_plus
