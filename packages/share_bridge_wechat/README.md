@@ -2,7 +2,10 @@
 
 Share Bridge 的微信分享能力包。
 
-当前状态：Dart API 和 MethodChannel 骨架已完成；Android / iOS 微信原生 SDK 接入还未完成。
+当前状态：
+
+- Android：已接入微信 OpenSDK，可发起网页 / 图片分享并等待 `WXEntryActivity` 回调。
+- iOS：Dart API 和 MethodChannel 骨架已完成，原生 SDK 接入还未完成。
 
 ## 使用形态
 
@@ -22,4 +25,25 @@ await manager.register(
 
 - 只做微信分享。
 - 不做登录、支付、OAuth、用户资料。
-- 原生 SDK 接入会在后续里程碑实现。
+
+## Android 回调接入
+
+宿主 App 必须在自己的包名下提供 `wxapi.WXEntryActivity`，并继承插件提供的基类：
+
+```kotlin
+package your.application.id.wxapi
+
+import com.gongziming.share_bridge_wechat.ShareBridgeWechatEntryActivity
+
+class WXEntryActivity : ShareBridgeWechatEntryActivity()
+```
+
+同时需要在宿主 App 的 `AndroidManifest.xml` 中声明：
+
+```xml
+<activity
+    android:name=".wxapi.WXEntryActivity"
+    android:exported="true"
+    android:launchMode="singleTop"
+    android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+```

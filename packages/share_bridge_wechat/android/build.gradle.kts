@@ -71,6 +71,7 @@ android {
 }
 
 dependencies {
+    implementation("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
 }
