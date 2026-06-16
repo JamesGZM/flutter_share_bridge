@@ -1,7 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:share_bridge_core/share_bridge_core.dart';
 
-import 'share_bridge_wechat_method_channel.dart';
+import 'wechat_method_channel.dart';
 
 abstract class ShareBridgeWechatPlatform extends PlatformInterface {
   ShareBridgeWechatPlatform() : super(token: _token);

@@ -3,7 +3,7 @@ import UIKit
 import XCTest
 
 
-@testable import share_bridge_qq
+@testable import share_bridge_qq_ios
 
 // This demonstrates a simple unit test of the Swift portion of this plugin's implementation.
 //

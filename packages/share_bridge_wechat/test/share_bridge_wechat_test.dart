@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:share_bridge_wechat/share_bridge_wechat.dart';
-import 'package:share_bridge_wechat/share_bridge_wechat_method_channel.dart';
-import 'package:share_bridge_wechat/share_bridge_wechat_platform_interface.dart';
+import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 
 class MockShareBridgeWechatPlatform
     with MockPlatformInterfaceMixin

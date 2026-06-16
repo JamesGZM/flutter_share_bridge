@@ -60,7 +60,7 @@ class WXEntryActivity : ShareBridgeWechatEntryActivity()
 如果使用 SceneDelegate，需要在 `scene(_:openURLContexts:)` 和 `scene(_:continue:)` 中转发给插件：
 
 ```swift
-import share_bridge_wechat
+import share_bridge_wechat_ios
 
 if ShareBridgeWechatPlugin.handleOpen(url) {
   return

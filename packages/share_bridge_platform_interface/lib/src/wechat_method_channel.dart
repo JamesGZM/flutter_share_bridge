@@ -2,12 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:share_bridge_core/share_bridge_core.dart';
 
-import 'share_bridge_qq_platform_interface.dart';
+import 'wechat_platform.dart';
 
-/// MethodChannel implementation for QQ and QZone.
-class MethodChannelShareBridgeQq extends ShareBridgeQqPlatform {
+/// MethodChannel implementation for WeChat.
+class MethodChannelShareBridgeWechat extends ShareBridgeWechatPlatform {
   @visibleForTesting
-  final methodChannel = const MethodChannel('share_bridge_qq');
+  final methodChannel = const MethodChannel('share_bridge_wechat');
 
   @override
   Future<void> initialize({
@@ -21,30 +21,8 @@ class MethodChannelShareBridgeQq extends ShareBridgeQqPlatform {
   }
 
   @override
-  Future<void> setPrivacyGranted(bool granted) async {
-    await methodChannel.invokeMethod<void>('setPrivacyGranted', {
-      'granted': granted,
-    });
-  }
-
-  @override
   Future<bool> isInstalled() async {
     return await methodChannel.invokeMethod<bool>('isInstalled') ?? false;
-  }
-
-  @override
-  Future<bool> supports({
-    required ShareChannel channel,
-    required ShareContent content,
-  }) async {
-    return await methodChannel.invokeMethod<bool>('supports', {
-          'channel': channel.id,
-          'contentType': switch (content) {
-            ShareWebPageContent() => 'webpage',
-            ShareImageContent() => 'image',
-          },
-        }) ??
-        false;
   }
 
   @override

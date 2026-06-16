@@ -1,7 +1,7 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:share_bridge_core/share_bridge_core.dart';
 
-import 'share_bridge_qq_method_channel.dart';
+import 'qq_method_channel.dart';
 
 abstract class ShareBridgeQqPlatform extends PlatformInterface {
   ShareBridgeQqPlatform() : super(token: _token);

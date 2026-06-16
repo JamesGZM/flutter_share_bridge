@@ -19,7 +19,7 @@
 
 - 先发布 `share_bridge_core`。
 - 从四个 package 的 `pubspec.yaml` 中移除 `publish_to: none`。
-- 将 `share_bridge_widgets`、`share_bridge_wechat`、`share_bridge_qq` 中的 `share_bridge_core` 依赖从本地 `path` 改为 pub 版本约束，例如：
+- 将各包中的本地 `path` 依赖改为 pub 版本约束，例如：
 
 ```yaml
 dependencies:
@@ -29,6 +29,7 @@ dependencies:
 - 发布 `share_bridge_widgets`。
 - 发布 `share_bridge_wechat`。
 - 发布 `share_bridge_qq`。
+  federated 平台包应先发布 `*_platform_interface`、`*_android`、`*_ios`，再发布主包。
 
 ## 每包发布前命令
 
@@ -76,8 +77,8 @@ fvm flutter build ios --debug --no-codesign
 
 - `share_bridge_wechat` Android 使用 `com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0`。
 - `share_bridge_wechat` iOS 使用 `WechatOpenSDK-XCFramework`, `2.0.5`。
-- `share_bridge_qq` Android 内置 `android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar`。
-- `share_bridge_qq` iOS 内置 `ios/Frameworks/TencentOpenAPI.xcframework`。
+- `share_bridge_qq_android` Android 内置 `android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar`。
+- `share_bridge_qq_ios` iOS 内置 `ios/Frameworks/TencentOpenAPI.xcframework`。
 - 发布 `share_bridge_qq` 前必须确认 QQ SDK 允许随 pub 包再分发；如果许可不允许，需要改成用户本地放置 SDK 的接入方式。
 
 ## 其他检查

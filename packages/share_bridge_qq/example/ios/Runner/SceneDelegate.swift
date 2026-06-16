@@ -1,5 +1,5 @@
 import Flutter
-import share_bridge_qq
+import share_bridge_qq_ios
 import UIKit
 
 class SceneDelegate: FlutterSceneDelegate {

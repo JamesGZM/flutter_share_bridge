@@ -1,9 +1,9 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint share_bridge_wechat.podspec` to validate before publishing.
+# Run `pod lib lint share_bridge_wechat_ios.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'share_bridge_wechat'
+  s.name             = 'share_bridge_wechat_ios'
   s.version          = '0.1.0-dev.1'
   s.summary          = 'Share Bridge WeChat share-only plugin.'
   s.description      = <<-DESC

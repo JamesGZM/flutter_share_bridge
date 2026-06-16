@@ -1,6 +1,6 @@
 import Flutter
-import share_bridge_qq
-import share_bridge_wechat
+import share_bridge_qq_ios
+import share_bridge_wechat_ios
 import UIKit
 
 class SceneDelegate: FlutterSceneDelegate {

@@ -20,9 +20,21 @@ Flutter Share Bridge 是一组模块化的 Flutter 社交分享插件，用于�
 | 包 | 说明 |
 | --- | --- |
 | `share_bridge_core` | 核心模型、分享管理器、结果类型，不依赖 Flutter |
-| `share_bridge_wechat` | 微信分享插件 |
-| `share_bridge_qq` | QQ / QQ 空间分享插件 |
+| `share_bridge_wechat` | 微信分享主包，自动带入 Android / iOS 实现 |
+| `share_bridge_qq` | QQ / QQ 空间分享主包，自动带入 Android / iOS 实现 |
 | `share_bridge_widgets` | 可选分享 UI |
+
+平台实现包采用 federated plugin 结构拆分：
+
+```text
+share_bridge_platform_interface
+share_bridge_wechat_android
+share_bridge_wechat_ios
+share_bridge_qq_android
+share_bridge_qq_ios
+```
+
+普通宿主 App 只需要依赖主包；平台实现包由 `default_package` 自动带入。
 
 ## 安装
 
@@ -201,8 +213,13 @@ switch (result.code) {
 ```sh
 cd packages/share_bridge_core && fvm dart analyze && fvm dart test
 cd packages/share_bridge_widgets && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_platform_interface && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_wechat && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_qq && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_wechat_android && fvm flutter analyze
+cd packages/share_bridge_wechat_ios && fvm flutter analyze
+cd packages/share_bridge_qq_android && fvm flutter analyze
+cd packages/share_bridge_qq_ios && fvm flutter analyze
 ```
 
 原生构建：

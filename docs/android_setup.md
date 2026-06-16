@@ -90,7 +90,7 @@ fvm flutter run --dart-define=WECHAT_APP_ID=你的微信AppID
 当前 Android 侧已完成 QQ SDK 调用适配，插件已接入你本地下载的 QQ 官方 Lite Jar：
 
 ```text
-packages/share_bridge_qq/android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar
+packages/share_bridge_qq_android/android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar
 ```
 
 QQ 互联官方 Android 文档仍以下载 Android SDK/Jar 的方式说明接入，因此当前不使用不可确认的第三方 Maven 坐标。插件直接编译依赖本地 Jar，并调用：
@@ -122,7 +122,7 @@ QQ 互联官方 Android 文档仍以下载 Android SDK/Jar 的方式说明接入
 open_sdk_3.5.19_r9483ffc7_lite.jar
 ```
 
-如果后续升级 QQ SDK，需要替换 `packages/share_bridge_qq/android/libs/` 下的 Jar，并重新跑 Android 示例编译。
+如果后续升级 QQ SDK，需要替换 `packages/share_bridge_qq_android/android/libs/` 下的 Jar，并重新跑 Android 示例编译。
 
 ### 2. 宿主 Manifest 配置
 

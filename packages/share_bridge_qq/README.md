@@ -5,9 +5,9 @@ Share Bridge 的 QQ 与 QQ 空间分享能力包。
 当前状态：
 
 - Android 已完成 QQ / QQ 空间分享的原生调用适配。
-- Android 侧已接入本地官方 SDK：`android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar`。
+- Android 侧已接入本地官方 SDK：`../share_bridge_qq_android/android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar`。
 - iOS 已完成 QQ / QQ 空间分享的原生调用适配。
-- iOS 侧已接入本地官方 SDK：`ios/Frameworks/TencentOpenAPI.xcframework`。
+- iOS 侧已接入本地官方 SDK：`../share_bridge_qq_ios/ios/Frameworks/TencentOpenAPI.xcframework`。
 
 ## 使用形态
 
@@ -53,7 +53,7 @@ Android 真机调试前，还需要把 example 的 `AndroidManifest.xml` 中 `te
 QQ 互联 Android SDK 当前官方文档仍以下载 SDK/Jar 的方式说明接入。当前插件使用你本地下载的官方 Lite Jar：
 
 ```text
-android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar
+../share_bridge_qq_android/android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar
 ```
 
 插件已经直接编译依赖该 Jar，并使用：
@@ -85,7 +85,7 @@ Tencent.createInstance(appId, context, "${applicationId}.fileprovider")
 QQ 互联 iOS SDK 当前使用你本地下载的官方 Lite XCFramework：
 
 ```text
-ios/Frameworks/TencentOpenAPI.xcframework
+../share_bridge_qq_ios/ios/Frameworks/TencentOpenAPI.xcframework
 ```
 
 插件已经直接编译依赖该 XCFramework，并使用：

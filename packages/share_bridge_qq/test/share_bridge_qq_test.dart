@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:share_bridge_qq/share_bridge_qq.dart';
-import 'package:share_bridge_qq/share_bridge_qq_method_channel.dart';
-import 'package:share_bridge_qq/share_bridge_qq_platform_interface.dart';
+import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 
 class MockShareBridgeQqPlatform
     with MockPlatformInterfaceMixin

@@ -3,7 +3,7 @@
 文档版本：v0.1
 项目阶段：开发前置设计
 暂定包名前缀：`share_bridge_*`
-目标平台：Android、iOS、HarmonyOS
+目标平台：Android、iOS；后续预留 HarmonyOS 扩展
 目标能力：微信分享、QQ 分享、可选分享 UI 组件
 
 ---
@@ -78,7 +78,7 @@ UI 可选。
 2. 提供可选 UI 库 `share_bridge_widgets`，用于分享面板、分享按钮、分享宫格等组件。
 3. 提供微信能力包 `share_bridge_wechat`，只接入微信分享能力。
 4. 提供 QQ 能力包 `share_bridge_qq`，只接入 QQ 分享能力。
-5. 支持 Android、iOS，后续扩展 HarmonyOS。
+5. 当前支持 Android、iOS，后续通过新增平台实现包扩展 HarmonyOS。
 6. 用户只引入需要的平台包，避免无关 SDK 进入最终包。
 7. Dart 层 API 保持稳定，Native 层可独立升级。
 8. 业务层不直接依赖微信、QQ 原生 SDK，也不直接依赖现有第三方 Flutter 插件。
@@ -104,20 +104,22 @@ UI 可选。
 
 ## 4. 包结构设计
 
-推荐采用 Monorepo 管理多个 package：
+推荐采用 Monorepo 管理多个 package。微信、QQ 按 Flutter federated plugin 结构拆分，用户依赖主包，Android / iOS 实现由主包 `default_package` 自动带入：
 
 ```text
 share_bridge/
   packages/
     share_bridge_core/
     share_bridge_widgets/
+    share_bridge_platform_interface/
     share_bridge_wechat/
+    share_bridge_wechat_android/
+    share_bridge_wechat_ios/
     share_bridge_qq/
+    share_bridge_qq_android/
+    share_bridge_qq_ios/
 
-  examples/
-    basic_example/
-    custom_ui_example/
-    widgets_example/
+  example/
 
   docs/
     design.md
@@ -127,6 +129,8 @@ share_bridge/
     privacy.md
     release.md
 ```
+
+本轮不声明 `ohos` 平台，也不创建 `*_ohos` 包。后续需要 HarmonyOS 时，再追加 `share_bridge_wechat_ohos` / `share_bridge_qq_ohos`，并在主包 `pubspec.yaml` 中增加对应 `default_package`。
 
 ---
 
@@ -183,19 +187,21 @@ share_bridge/
 
 ### 5.3 share_bridge_wechat
 
-微信分享能力包，只依赖 `share_bridge_core`。
+微信分享主包，面向用户暴露 `WechatShareProvider` 等 Dart API，依赖 `share_bridge_core` 与共享的 `share_bridge_platform_interface`，并通过 `default_package` endorsement 引入 Android / iOS 实现包。
 
 职责：
 
-1. 接入微信 Android SDK。
-2. 接入微信 iOS SDK。
-3. 后续接入微信 HarmonyOS SDK，若平台 SDK 暂未开放对应能力，则返回 unsupported。
-4. 提供微信好友分享。
-5. 提供微信朋友圈分享。
-6. 支持网页分享。
-7. 支持图片分享。
-8. 后续支持小程序分享。
-9. 处理微信 SDK 初始化、注册、回调、错误映射。
+1. 暴露稳定的微信分享 Dart API。
+2. 注册微信 Provider 并转发到平台接口。
+3. 通过 `share_bridge_wechat_android` 接入微信 Android SDK。
+4. 通过 `share_bridge_wechat_ios` 接入微信 iOS SDK。
+5. 后续通过 `share_bridge_wechat_ohos` 接入 HarmonyOS，若平台 SDK 暂未开放对应能力，则返回 unsupported。
+6. 提供微信好友分享。
+7. 提供微信朋友圈分享。
+8. 支持网页分享。
+9. 支持图片分享。
+10. 后续支持小程序分享。
+11. 处理微信 SDK 初始化、注册、回调、错误映射。
 
 不包含：
 
@@ -208,18 +214,20 @@ share_bridge/
 
 ### 5.4 share_bridge_qq
 
-QQ 分享能力包，只依赖 `share_bridge_core`。
+QQ 分享主包，面向用户暴露 `QqShareProvider`、`QqShareProvider.setPrivacyGranted` 等 Dart API，依赖 `share_bridge_core` 与共享的 `share_bridge_platform_interface`，并通过 `default_package` endorsement 引入 Android / iOS 实现包。
 
 职责：
 
-1. 接入 QQ Android SDK。
-2. 接入 QQ iOS SDK。
-3. 接入 QQ HarmonyOS SDK。
-4. 提供 QQ 好友分享。
-5. 提供 QQ 空间分享。
-6. 支持网页分享。
-7. 支持图片分享。
-8. 处理 QQ SDK 初始化、注册、回调、错误映射。
+1. 暴露稳定的 QQ 分享 Dart API。
+2. 注册 QQ Provider 并转发到平台接口。
+3. 通过 `share_bridge_qq_android` 接入 QQ Android SDK。
+4. 通过 `share_bridge_qq_ios` 接入 QQ iOS SDK。
+5. 后续通过 `share_bridge_qq_ohos` 接入 HarmonyOS。
+6. 提供 QQ 好友分享。
+7. 提供 QQ 空间分享。
+8. 支持网页分享。
+9. 支持图片分享。
+10. 处理 QQ SDK 初始化、注册、回调、错误映射。
 
 不包含：
 
@@ -235,9 +243,21 @@ QQ 分享能力包，只依赖 `share_bridge_core`。
 正确依赖关系：
 
 ```text
-share_bridge_widgets  ─┐
-share_bridge_wechat   ─┼──> share_bridge_core
-share_bridge_qq       ─┘
+share_bridge_widgets ───────────────> share_bridge_core
+
+share_bridge_wechat ────────────────> share_bridge_core
+share_bridge_wechat ────────────────> share_bridge_platform_interface
+share_bridge_wechat ──default───────> share_bridge_wechat_android
+share_bridge_wechat ──default───────> share_bridge_wechat_ios
+share_bridge_wechat_android ────────> share_bridge_platform_interface
+share_bridge_wechat_ios ────────────> share_bridge_platform_interface
+
+share_bridge_qq ────────────────────> share_bridge_core
+share_bridge_qq ────────────────────> share_bridge_platform_interface
+share_bridge_qq ──default───────────> share_bridge_qq_android
+share_bridge_qq ──default───────────> share_bridge_qq_ios
+share_bridge_qq_android ────────────> share_bridge_platform_interface
+share_bridge_qq_ios ────────────────> share_bridge_platform_interface
 ```
 
 禁止依赖关系：
@@ -248,6 +268,12 @@ share_bridge_core -> share_bridge_wechat
 share_bridge_core -> share_bridge_qq
 share_bridge_widgets -> share_bridge_wechat
 share_bridge_widgets -> share_bridge_qq
+share_bridge_platform_interface -> share_bridge_wechat
+share_bridge_platform_interface -> share_bridge_qq
+share_bridge_wechat_android -> share_bridge_wechat
+share_bridge_wechat_ios -> share_bridge_wechat
+share_bridge_qq_android -> share_bridge_qq
+share_bridge_qq_ios -> share_bridge_qq
 ```
 
 设计原则：
@@ -257,6 +283,7 @@ share_bridge_widgets -> share_bridge_qq
 3. `wechat` 和 `qq` 只关心各自平台能力。
 4. 能力包之间不能互相依赖。
 5. 用户未导入某个能力包时，对应 Native SDK 不应进入最终构建。
+6. 用户只需要依赖主包；平台实现包按 Flutter endorsed federated plugin 机制自动进入 Android / iOS 构建。
 
 ---
 

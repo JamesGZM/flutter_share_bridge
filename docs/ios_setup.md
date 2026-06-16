@@ -86,7 +86,7 @@ applinks:你的域名
 如果宿主工程使用 SceneDelegate，还需要转发：
 
 ```swift
-import share_bridge_wechat
+import share_bridge_wechat_ios
 
 override func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
   for context in URLContexts {
@@ -123,7 +123,7 @@ fvm flutter run --dart-define=WECHAT_APP_ID=你的微信AppID
 当前 iOS 侧已接入你本地下载的 QQ 官方 Lite XCFramework：
 
 ```text
-packages/share_bridge_qq/ios/Frameworks/TencentOpenAPI.xcframework
+packages/share_bridge_qq_ios/ios/Frameworks/TencentOpenAPI.xcframework
 ```
 
 QQ 互联官方 iOS SDK 包里的 module map 位于非标准目录，插件内已补充到每个 framework slice 的 `Modules/module.modulemap`，并改为标准 `framework module TencentOpenApi` 声明，确保 Swift 可以 `import TencentOpenApi`。
@@ -215,7 +215,7 @@ applinks:你的域名
 如果宿主工程使用 SceneDelegate，还需要转发：
 
 ```swift
-import share_bridge_qq
+import share_bridge_qq_ios
 
 override func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
   for context in URLContexts {

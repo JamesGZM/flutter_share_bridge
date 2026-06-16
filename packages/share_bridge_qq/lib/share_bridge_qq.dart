@@ -2,8 +2,7 @@ library;
 
 import 'package:flutter/services.dart';
 import 'package:share_bridge_core/share_bridge_core.dart';
-
-import 'share_bridge_qq_platform_interface.dart';
+import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 
 export 'package:share_bridge_core/share_bridge_core.dart';
 

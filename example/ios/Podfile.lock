@@ -1,16 +1,16 @@
 PODS:
   - Flutter (1.0.0)
-  - share_bridge_qq (0.1.0-dev.1):
+  - share_bridge_qq_ios (0.1.0-dev.1):
     - Flutter
-  - share_bridge_wechat (0.1.0-dev.1):
+  - share_bridge_wechat_ios (0.1.0-dev.1):
     - Flutter
     - WechatOpenSDK-XCFramework (= 2.0.5)
   - WechatOpenSDK-XCFramework (2.0.5)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - share_bridge_qq (from `.symlinks/plugins/share_bridge_qq/ios`)
-  - share_bridge_wechat (from `.symlinks/plugins/share_bridge_wechat/ios`)
+  - share_bridge_qq_ios (from `.symlinks/plugins/share_bridge_qq_ios/ios`)
+  - share_bridge_wechat_ios (from `.symlinks/plugins/share_bridge_wechat_ios/ios`)
 
 SPEC REPOS:
   trunk:
@@ -19,15 +19,15 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  share_bridge_qq:
-    :path: ".symlinks/plugins/share_bridge_qq/ios"
-  share_bridge_wechat:
-    :path: ".symlinks/plugins/share_bridge_wechat/ios"
+  share_bridge_qq_ios:
+    :path: ".symlinks/plugins/share_bridge_qq_ios/ios"
+  share_bridge_wechat_ios:
+    :path: ".symlinks/plugins/share_bridge_wechat_ios/ios"
 
 SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  share_bridge_qq: 89471d10b854ba0fb4dd77ccd6edc98646e44795
-  share_bridge_wechat: c8aa77def9ec912d362b013ed995a94bf94cb9b8
+  share_bridge_qq_ios: e2f59b482be2758a1b909af721a44c5d4699daba
+  share_bridge_wechat_ios: dc45021cd3e664a5c023e07c88dd624624d54b73
   WechatOpenSDK-XCFramework: ff342ae616bb86df3d236aca38059dfd4bc4a949
 
 PODFILE CHECKSUM: 47a757a7853adf00f34d8294fd2037725e0d47ac

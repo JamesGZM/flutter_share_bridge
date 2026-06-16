@@ -20,9 +20,21 @@ It is share-only. It does not include login, payment, OAuth, or user profile API
 | Package | Description |
 | --- | --- |
 | `share_bridge_core` | Core models, share manager, result types. No Flutter dependency |
-| `share_bridge_wechat` | WeChat sharing plugin |
-| `share_bridge_qq` | QQ / QZone sharing plugin |
+| `share_bridge_wechat` | WeChat sharing wrapper package, automatically endorses Android / iOS implementations |
+| `share_bridge_qq` | QQ / QZone sharing wrapper package, automatically endorses Android / iOS implementations |
 | `share_bridge_widgets` | Optional share UI |
+
+Platform implementations use the federated plugin layout:
+
+```text
+share_bridge_platform_interface
+share_bridge_wechat_android
+share_bridge_wechat_ios
+share_bridge_qq_android
+share_bridge_qq_ios
+```
+
+Host apps should depend on the wrapper packages. Platform packages are pulled in by `default_package`.
 
 ## Installation
 
@@ -201,8 +213,13 @@ Common result codes:
 ```sh
 cd packages/share_bridge_core && fvm dart analyze && fvm dart test
 cd packages/share_bridge_widgets && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_platform_interface && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_wechat && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_qq && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_wechat_android && fvm flutter analyze
+cd packages/share_bridge_wechat_ios && fvm flutter analyze
+cd packages/share_bridge_qq_android && fvm flutter analyze
+cd packages/share_bridge_qq_ios && fvm flutter analyze
 ```
 
 Native builds:

@@ -1,5 +1,5 @@
 import Flutter
-import share_bridge_wechat
+import share_bridge_wechat_ios
 import UIKit
 
 class SceneDelegate: FlutterSceneDelegate {
