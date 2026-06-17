@@ -1,3 +1,4 @@
+/// HarmonyOS MethodChannel implementation for WeChat sharing.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:share_bridge_platform_interface/share_bridge_platform_interface.
 
 /// HarmonyOS implementation for WeChat sharing.
 final class ShareBridgeWechatOhos extends ShareBridgePlatform {
+  /// Registers this implementation for the WeChat client.
   static void registerWith() {
     ShareBridgePlatform.register(
       client: ShareClient.wechat,
@@ -13,6 +15,7 @@ final class ShareBridgeWechatOhos extends ShareBridgePlatform {
     );
   }
 
+  /// MethodChannel used by the HarmonyOS implementation.
   @visibleForTesting
   final methodChannel = const MethodChannel('share_bridge_wechat');
 
@@ -53,15 +56,15 @@ final class ShareBridgeWechatOhos extends ShareBridgePlatform {
     required ShareChannel channel,
     required ShareWebPageContent content,
   }) async {
-    final raw = await methodChannel
-        .invokeMapMethod<String, Object?>('shareWebPage', {
-          'requestId': requestId,
-          'channel': channel.id,
-          'title': content.title,
-          'description': content.description,
-          'url': content.url,
-          'thumbnail': _imageSourceToMap(content.thumbnail),
-        });
+    final raw =
+        await methodChannel.invokeMapMethod<String, Object?>('shareWebPage', {
+      'requestId': requestId,
+      'channel': channel.id,
+      'title': content.title,
+      'description': content.description,
+      'url': content.url,
+      'thumbnail': _imageSourceToMap(content.thumbnail),
+    });
     return _resultFromMap(raw);
   }
 
@@ -71,13 +74,13 @@ final class ShareBridgeWechatOhos extends ShareBridgePlatform {
     required ShareChannel channel,
     required ShareImageContent content,
   }) async {
-    final raw = await methodChannel
-        .invokeMapMethod<String, Object?>('shareImage', {
-          'requestId': requestId,
-          'channel': channel.id,
-          'image': _imageSourceToMap(content.image),
-          'thumbnail': _imageSourceToMap(content.thumbnail),
-        });
+    final raw =
+        await methodChannel.invokeMapMethod<String, Object?>('shareImage', {
+      'requestId': requestId,
+      'channel': channel.id,
+      'image': _imageSourceToMap(content.image),
+      'thumbnail': _imageSourceToMap(content.thumbnail),
+    });
     return _resultFromMap(raw);
   }
 }
@@ -99,9 +102,9 @@ Map<String, Object?>? _imageSourceToMap(ShareImageSource? source) {
     null => null,
     ShareFileImageSource(:final path) => {'type': 'file', 'path': path},
     ShareMemoryImageSource(:final bytes, :final mimeType) => {
-      'type': 'memory',
-      'bytes': bytes,
-      'mimeType': mimeType,
-    },
+        'type': 'memory',
+        'bytes': bytes,
+        'mimeType': mimeType,
+      },
   };
 }

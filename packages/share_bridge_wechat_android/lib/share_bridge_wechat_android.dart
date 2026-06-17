@@ -1,3 +1,4 @@
+/// Android MethodChannel implementation for WeChat sharing.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:share_bridge_platform_interface/share_bridge_platform_interface.
 
 /// Android implementation for WeChat sharing.
 final class ShareBridgeWechatAndroid extends ShareBridgePlatform {
+  /// Registers this implementation for the WeChat client.
   static void registerWith() {
     ShareBridgePlatform.register(
       client: ShareClient.wechat,
@@ -13,6 +15,7 @@ final class ShareBridgeWechatAndroid extends ShareBridgePlatform {
     );
   }
 
+  /// MethodChannel used by the Android implementation.
   @visibleForTesting
   final methodChannel = const MethodChannel('share_bridge_wechat');
 

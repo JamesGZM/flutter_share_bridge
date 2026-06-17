@@ -1,3 +1,4 @@
+/// HarmonyOS MethodChannel implementation for QQ and QZone sharing.
 library;
 
 import 'package:flutter/foundation.dart';
@@ -6,6 +7,7 @@ import 'package:share_bridge_platform_interface/share_bridge_platform_interface.
 
 /// HarmonyOS implementation for QQ and QZone sharing.
 final class ShareBridgeQqOhos extends ShareBridgePlatform {
+  /// Registers this implementation for the QQ client.
   static void registerWith() {
     ShareBridgePlatform.register(
       client: ShareClient.qq,
@@ -13,6 +15,7 @@ final class ShareBridgeQqOhos extends ShareBridgePlatform {
     );
   }
 
+  /// MethodChannel used by the HarmonyOS implementation.
   @visibleForTesting
   final methodChannel = const MethodChannel('share_bridge_qq');
 

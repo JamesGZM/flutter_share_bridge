@@ -1,6 +1,6 @@
 name: share_bridge_widgets
-description: Optional Flutter share UI widgets for Share Bridge.
-version: 0.1.0-dev.2
+description: Optional Flutter share sheet and grid widgets built on share_bridge_core for custom social sharing interfaces.
+version: 0.1.0-dev.3
 homepage: https://github.com/JamesGZM/flutter_share_bridge
 repository: https://github.com/JamesGZM/flutter_share_bridge/tree/master/packages/share_bridge_widgets
 issue_tracker: https://github.com/JamesGZM/flutter_share_bridge/issues
@@ -21,7 +21,7 @@ dependencies:
   flutter:
     sdk: flutter
   simple_icons: ^16.23.0
-  share_bridge_core: ^0.1.0-dev.1
+  share_bridge_core: ^0.1.0-dev.2
 
 dev_dependencies:
   flutter_test:

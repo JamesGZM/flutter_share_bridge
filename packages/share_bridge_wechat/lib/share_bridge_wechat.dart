@@ -1,3 +1,4 @@
+/// WeChat sharing provider for Share Bridge.
 library;
 
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ export 'package:share_bridge_core/share_bridge_core.dart';
 
 /// Share-only WeChat provider.
 final class WechatShareProvider implements ShareProvider {
+  /// Creates a WeChat share provider.
   WechatShareProvider({
     required this.appId,
     this.universalLink,
@@ -14,7 +16,10 @@ final class WechatShareProvider implements ShareProvider {
   }) : _platform =
             platform ?? ShareBridgePlatform.instanceFor(ShareClient.wechat);
 
+  /// WeChat Open Platform AppID.
   final String appId;
+
+  /// Optional iOS Universal Link.
   final String? universalLink;
   final ShareBridgePlatform _platform;
 

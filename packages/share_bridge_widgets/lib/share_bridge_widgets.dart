@@ -1,3 +1,4 @@
+/// Optional Flutter widgets for Share Bridge share sheets and grids.
 library;
 
 import 'package:flutter/material.dart';
@@ -6,15 +7,18 @@ import 'package:simple_icons/simple_icons.dart';
 
 export 'package:share_bridge_core/share_bridge_core.dart';
 
+/// Builds a custom icon for a share channel.
 typedef ShareChannelIconBuilder = Widget Function(
   BuildContext context,
   ShareChannel channel,
 );
 
+/// Builds a display title for a share channel.
 typedef ShareChannelTitleBuilder = String Function(ShareChannel channel);
 
 /// Visual configuration for Share Bridge widgets.
 final class ShareBridgeSheetTheme {
+  /// Creates visual configuration for Share Bridge widgets.
   const ShareBridgeSheetTheme({
     this.backgroundColor,
     this.handleColor,
@@ -25,12 +29,25 @@ final class ShareBridgeSheetTheme {
     this.borderRadius = const BorderRadius.vertical(top: Radius.circular(16)),
   });
 
+  /// Bottom sheet background color.
   final Color? backgroundColor;
+
+  /// Drag handle color.
   final Color? handleColor;
+
+  /// Default foreground color for item labels.
   final Color? itemForegroundColor;
+
+  /// Width and height allocated for each share item.
   final double itemSize;
+
+  /// Spacing between share items.
   final double spacing;
+
+  /// Padding around the sheet content.
   final EdgeInsetsGeometry padding;
+
+  /// Border radius applied to the sheet container.
   final BorderRadius borderRadius;
 }
 
@@ -38,6 +55,7 @@ final class ShareBridgeSheetTheme {
 final class ShareBridgeSheet {
   const ShareBridgeSheet._();
 
+  /// Shows a modal bottom sheet and returns the share result.
   static Future<ShareResult?> show({
     required BuildContext context,
     required ShareManager manager,
@@ -70,6 +88,7 @@ final class ShareBridgeSheet {
 
 /// Embeddable share grid for custom sheets or pages.
 class ShareBridgeGrid extends StatelessWidget {
+  /// Creates an embeddable share grid.
   const ShareBridgeGrid({
     super.key,
     required this.manager,
@@ -82,13 +101,28 @@ class ShareBridgeGrid extends StatelessWidget {
     this.spacing = 12,
   });
 
+  /// Share manager used to dispatch selected channels.
   final ShareManager manager;
+
+  /// Content shared when a channel is selected.
   final ShareContent content;
+
+  /// Channels displayed by the grid.
   final List<ShareChannel> channels;
+
+  /// Optional callback invoked after a share operation completes.
   final ValueChanged<ShareResult>? onResult;
+
+  /// Optional custom icon builder.
   final ShareChannelIconBuilder? iconBuilder;
+
+  /// Optional custom title builder.
   final ShareChannelTitleBuilder? titleBuilder;
+
+  /// Width and height allocated for each share item.
   final double itemSize;
+
+  /// Spacing between share items.
   final double spacing;
 
   @override

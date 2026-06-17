@@ -1,3 +1,4 @@
+/// QQ and QZone sharing provider for Share Bridge.
 library;
 
 import 'package:flutter/services.dart';
@@ -5,11 +6,14 @@ import 'package:share_bridge_platform_interface/share_bridge_platform_interface.
 
 export 'package:share_bridge_core/share_bridge_core.dart';
 
+/// Callback used to sign QQ HarmonyOS share payloads on a business backend.
 typedef QqHarmonyShareSigner = Future<QqHarmonyShareSignature> Function(
   QqHarmonyShareSignatureRequest request,
 );
 
+/// Unsigned QQ HarmonyOS share payload that should be sent to the backend.
 final class QqHarmonyShareSignatureRequest {
+  /// Creates a QQ HarmonyOS signature request.
   const QqHarmonyShareSignatureRequest({
     required this.channel,
     required this.content,
@@ -17,13 +21,22 @@ final class QqHarmonyShareSignatureRequest {
     required this.shareJson,
   });
 
+  /// Target share channel.
   final ShareChannel channel;
+
+  /// Original share content.
   final ShareContent content;
+
+  /// QQ HarmonyOS SDK share type.
   final int type;
+
+  /// JSON payload that must be signed by the backend.
   final Map<String, Object?> shareJson;
 }
 
+/// Signed QQ HarmonyOS share payload returned by the business backend.
 final class QqHarmonyShareSignature {
+  /// Creates signed QQ HarmonyOS share data.
   const QqHarmonyShareSignature({
     required this.type,
     required this.shareJson,
@@ -33,13 +46,25 @@ final class QqHarmonyShareSignature {
     this.openId,
   });
 
+  /// QQ HarmonyOS SDK share type.
   final int type;
+
+  /// Signed JSON payload.
   final Map<String, Object?> shareJson;
+
+  /// Backend-generated timestamp.
   final String timestamp;
+
+  /// Backend-generated nonce.
   final String nonce;
+
+  /// Signature for `shareJson + timestamp + nonce`.
   final String shareJsonSign;
+
+  /// Optional QQ openId required by some share scenarios.
   final String? openId;
 
+  /// Encodes the signed payload for MethodChannel transport.
   Map<String, Object?> toMap() {
     return {
       'type': type,
@@ -54,6 +79,7 @@ final class QqHarmonyShareSignature {
 
 /// Share-only QQ/QZone provider.
 final class QqShareProvider implements ShareProvider {
+  /// Creates a QQ share provider.
   QqShareProvider({
     required this.appId,
     this.universalLink,
@@ -62,13 +88,17 @@ final class QqShareProvider implements ShareProvider {
   })  : _qqHarmonySigner = qqHarmonySigner,
         _platform = platform ?? ShareBridgePlatform.instanceFor(ShareClient.qq);
 
+  /// Reports whether the user has granted the app privacy policy.
   static Future<void> setPrivacyGranted(bool granted) {
     return _qqMethodChannel.invokeMethod<void>('setPrivacyGranted', {
       'granted': granted,
     });
   }
 
+  /// QQ Connect AppID.
   final String appId;
+
+  /// Optional iOS Universal Link.
   final String? universalLink;
   final QqHarmonyShareSigner? _qqHarmonySigner;
   final ShareBridgePlatform _platform;

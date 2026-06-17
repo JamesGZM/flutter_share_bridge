@@ -1,3 +1,7 @@
+## 0.1.0-dev.3
+
+- Improved pub.dev metadata descriptions and public API documentation.
+
 ## 0.1.0-dev.2
 
 - Updated pub.dev metadata and documentation links.

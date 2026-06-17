@@ -1,6 +1,6 @@
 name: share_bridge_wechat_ios
-description: iOS implementation of share_bridge_wechat.
-version: 0.1.0-dev.2
+description: iOS federated implementation of share_bridge_wechat using WeChat OpenSDK callbacks and URL handling.
+version: 0.1.0-dev.3
 homepage: https://github.com/JamesGZM/flutter_share_bridge
 repository: https://github.com/JamesGZM/flutter_share_bridge/tree/master/packages/share_bridge_wechat_ios
 issue_tracker: https://github.com/JamesGZM/flutter_share_bridge/issues

@@ -1,6 +1,6 @@
 name: share_bridge_qq_ohos
-description: HarmonyOS implementation of share_bridge_qq.
-version: 0.1.0-dev.2
+description: HarmonyOS federated implementation of share_bridge_qq using Tencent QQ OpenSDK signed sharing APIs.
+version: 0.1.0-dev.3
 homepage: https://github.com/JamesGZM/flutter_share_bridge
 repository: https://github.com/JamesGZM/flutter_share_bridge/tree/master/packages/share_bridge_qq_ohos
 issue_tracker: https://github.com/JamesGZM/flutter_share_bridge/issues

@@ -1,16 +1,20 @@
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:share_bridge_core/share_bridge_core.dart';
 
+/// Base class for platform-specific share implementations.
 abstract class ShareBridgePlatform extends PlatformInterface {
+  /// Creates a platform implementation instance.
   ShareBridgePlatform() : super(token: _token);
 
   static final Object _token = Object();
   static final Map<ShareClient, ShareBridgePlatform> _instances = {};
 
+  /// Returns the registered implementation for [client].
   static ShareBridgePlatform instanceFor(ShareClient client) {
     return _instances[client] ?? _UnregisteredShareBridgePlatform(client);
   }
 
+  /// Registers [instance] as the implementation for [client].
   static void register({
     required ShareClient client,
     required ShareBridgePlatform instance,
@@ -19,14 +23,17 @@ abstract class ShareBridgePlatform extends PlatformInterface {
     _instances[client] = instance;
   }
 
+  /// Initializes the native SDK with host configuration.
   Future<void> initialize({required String appId, String? universalLink}) {
     throw UnimplementedError('initialize() has not been implemented.');
   }
 
+  /// Returns whether the native client app is installed.
   Future<bool> isInstalled() {
     throw UnimplementedError('isInstalled() has not been implemented.');
   }
 
+  /// Returns whether the native layer supports [content] for [channel].
   Future<bool> supports({
     required ShareChannel channel,
     required ShareContent content,
@@ -34,6 +41,7 @@ abstract class ShareBridgePlatform extends PlatformInterface {
     throw UnimplementedError('supports() has not been implemented.');
   }
 
+  /// Shares a webpage payload.
   Future<ShareResult> shareWebPage({
     required String requestId,
     required ShareChannel channel,
@@ -42,6 +50,7 @@ abstract class ShareBridgePlatform extends PlatformInterface {
     throw UnimplementedError('shareWebPage() has not been implemented.');
   }
 
+  /// Shares an image payload.
   Future<ShareResult> shareImage({
     required String requestId,
     required ShareChannel channel,
