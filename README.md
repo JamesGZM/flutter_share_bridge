@@ -1,32 +1,38 @@
 # Flutter Share Bridge
 
-[English](README_EN.md) | 中文
+[![Core](https://img.shields.io/pub/v/share_bridge_core.svg?label=share_bridge_core)](https://pub.dev/packages/share_bridge_core)
+[![WeChat](https://img.shields.io/pub/v/share_bridge_wechat.svg?label=share_bridge_wechat)](https://pub.dev/packages/share_bridge_wechat)
+[![QQ](https://img.shields.io/pub/v/share_bridge_qq.svg?label=share_bridge_qq)](https://pub.dev/packages/share_bridge_qq)
+[![Widgets](https://img.shields.io/pub/v/share_bridge_widgets.svg?label=share_bridge_widgets)](https://pub.dev/packages/share_bridge_widgets)
+[![License](https://img.shields.io/github/license/JamesGZM/flutter_share_bridge)](https://github.com/JamesGZM/flutter_share_bridge/blob/master/LICENSE)
 
-Flutter Share Bridge 是一组模块化的 Flutter 社交分享插件，用于把内容分享到微信、QQ 和 QQ 空间。
+[Chinese](README_CN.md)
 
-这个项目只做分享，不包含登录、支付、OAuth 或用户资料能力。你可以只接入需要的平台包，也可以额外使用 `share_bridge_widgets` 提供的分享面板 UI。
+Flutter Share Bridge is a modular Flutter social sharing plugin set for sharing content to WeChat, QQ, and QZone.
 
-## 功能
+It is share-only. It does not include login, payment, OAuth, or user profile APIs. You can depend on only the platform packages you need, and optionally use `share_bridge_widgets` for a Flutter share sheet UI.
 
-- 微信好友、微信朋友圈分享
-- QQ 好友、QQ 空间分享
-- 网页分享
-- 图片分享
-- 统一的 Dart 分享结果 `ShareResult`
-- 统一的分享入口 `ShareManager`
-- 可选 Flutter 分享面板 UI
-- Android / iOS / HarmonyOS 官方 SDK 接入
+## Features
 
-## 包
+- Share to WeChat session and WeChat timeline
+- Share to QQ friend and QZone
+- Webpage sharing
+- Image sharing
+- Unified Dart result type: `ShareResult`
+- Unified dispatcher: `ShareManager`
+- Optional Flutter share UI
+- Official SDK integration on Android / iOS / HarmonyOS
 
-| 包 | 说明 |
+## Packages
+
+| Package | Description |
 | --- | --- |
-| `share_bridge_core` | 核心模型、分享管理器、结果类型，不依赖 Flutter |
-| `share_bridge_wechat` | 微信分享主包，自动带入 Android / iOS / HarmonyOS 实现 |
-| `share_bridge_qq` | QQ / QQ 空间分享主包，自动带入 Android / iOS / HarmonyOS 实现 |
-| `share_bridge_widgets` | 可选分享 UI |
+| `share_bridge_core` | Core models, share manager, result types. No Flutter dependency |
+| `share_bridge_wechat` | WeChat sharing wrapper package, automatically endorses Android / iOS / HarmonyOS implementations |
+| `share_bridge_qq` | QQ / QZone sharing wrapper package, automatically endorses Android / iOS / HarmonyOS implementations |
+| `share_bridge_widgets` | Optional share UI |
 
-平台实现包采用 federated plugin 结构拆分：
+Platform implementations use the federated plugin layout:
 
 ```text
 share_bridge_platform_interface
@@ -38,40 +44,26 @@ share_bridge_qq_ios
 share_bridge_qq_ohos
 ```
 
-普通宿主 App 只需要依赖主包；平台实现包由 `default_package` 自动带入。
+Host apps should depend on the wrapper packages. Platform packages are pulled in by `default_package`.
 
-## 安装
+## Installation
 
-当前仓库仍处于本地调试阶段，包内暂时使用 `path` 依赖。发布到 pub.dev 后，宿主项目可以按需添加：
-
-```yaml
-dependencies:
-  share_bridge_core: ^0.1.0
-  share_bridge_wechat: ^0.1.0
-  share_bridge_qq: ^0.1.0
-  share_bridge_widgets: ^0.1.0
-```
-
-本仓库 example 当前使用本地路径依赖：
+Packages are published on pub.dev. Host apps can depend on the packages they need:
 
 ```yaml
 dependencies:
-  share_bridge_core:
-    path: ../packages/share_bridge_core
-  share_bridge_wechat:
-    path: ../packages/share_bridge_wechat
-  share_bridge_qq:
-    path: ../packages/share_bridge_qq
-  share_bridge_widgets:
-    path: ../packages/share_bridge_widgets
+  share_bridge_core: ^0.1.0-dev.2
+  share_bridge_wechat: ^0.1.0-dev.2
+  share_bridge_qq: ^0.1.0-dev.2
+  share_bridge_widgets: ^0.1.0-dev.2
 ```
 
-## 快速开始
+## Quick Start
 
 ```dart
 final manager = ShareManager();
 
-// QQ 官方 SDK 要求宿主在用户同意隐私政策后声明授权。
+// The QQ SDK requires the host app to declare privacy consent after the user agrees.
 await QqShareProvider.setPrivacyGranted(true);
 
 await manager.register(
@@ -91,33 +83,33 @@ await manager.register(
 final result = await manager.share(
   channel: ShareChannel.wechatSession,
   content: const ShareContent.webpage(
-    title: '标题',
-    description: '描述',
+    title: 'Title',
+    description: 'Description',
     url: 'https://example.com',
   ),
 );
 
 if (result.isSuccess) {
-  // 分享成功
+  // Shared successfully.
 }
 ```
 
-`ShareManager.register()` 会立即初始化对应 SDK。请在用户同意隐私政策、并完成宿主平台配置后再注册 provider。
+`ShareManager.register()` initializes the provider immediately. Register providers only after the user has accepted your privacy policy and the host platform configuration is ready.
 
-## 检查客户端是否安装
+## Check Installation
 
-`ShareClient` 表示真实 App，`ShareChannel` 表示分享目标。
+`ShareClient` represents a real client app. `ShareChannel` represents a share destination.
 
 ```dart
 final wechatInstalled = await manager.isInstalled(ShareClient.wechat);
 final qqInstalled = await manager.isInstalled(ShareClient.qq);
 ```
 
-分享时不需要业务方提前判断安装状态。`ShareManager.share()` 内部会处理未安装情况，并返回 `ShareResultCode.appNotInstalled`。
+You do not have to check installation before sharing. `ShareManager.share()` handles that internally and returns `ShareResultCode.appNotInstalled` when needed.
 
-## 图片分享
+## Image Sharing
 
-图片来源只支持本地文件和内存字节。
+Images support local files and in-memory bytes only.
 
 ```dart
 final result = await manager.share(
@@ -129,81 +121,80 @@ final result = await manager.share(
 );
 ```
 
-网络图片、Flutter asset、缓存策略和鉴权下载由宿主 App 自行处理。处理完成后，传入本地文件路径或 `Uint8List`。
+Network images, Flutter assets, caching, and authenticated downloads should be handled by the host app. Pass a local file path or `Uint8List` after conversion.
 
-## 分享面板
+## Share Sheet
 
 ```dart
 final result = await ShareBridgeSheet.show(
   context: context,
   manager: manager,
   content: const ShareContent.webpage(
-    title: '标题',
-    description: '描述',
+    title: 'Title',
+    description: 'Description',
     url: 'https://example.com',
   ),
 );
 ```
 
-`share_bridge_widgets` 只依赖 `share_bridge_core`，不绑定微信或 QQ 插件。
+`share_bridge_widgets` depends only on `share_bridge_core`. It does not depend on the WeChat or QQ plugins.
 
-## 平台配置
+## Platform Setup
 
-插件已经接入对应官方 SDK，但宿主 App 仍必须按开放平台要求配置包名、签名、URL Scheme、Universal Link、回调 Activity / AppDelegate 等信息。
+The plugins include official SDK integrations, but the host app must still complete the platform setup required by each developer platform.
 
-Android：
+Android:
 
-- 微信需要宿主提供 `${applicationId}.wxapi.WXEntryActivity`
-- QQ 需要配置 `AuthActivity`、`AssistActivity` 和 `tencent{QQAppID}` scheme
-- 图片分享需要 FileProvider，authorities 使用 `${applicationId}.fileprovider`
-- Android 11+ 需要配置包可见性 `queries`
+- WeChat requires `${applicationId}.wxapi.WXEntryActivity`
+- QQ requires `AuthActivity`, `AssistActivity`, and the `tencent{QQAppID}` scheme
+- Image sharing requires a FileProvider with authorities `${applicationId}.fileprovider`
+- Android 11+ requires package visibility `queries`
 
-iOS：
+iOS:
 
-- 配置 URL Scheme
-- 配置 `LSApplicationQueriesSchemes`
-- 如使用 Universal Link，配置 Associated Domains
-- 在 AppDelegate / SceneDelegate 中转发微信和 QQ 回调
+- Configure URL schemes
+- Configure `LSApplicationQueriesSchemes`
+- Configure Associated Domains if Universal Links are used
+- Forward WeChat and QQ callbacks from AppDelegate / SceneDelegate
 
-HarmonyOS：
+HarmonyOS:
 
-- 普通宿主 App 依赖 `share_bridge_wechat` / `share_bridge_qq` 即可，`share_bridge_wechat_ohos` / `share_bridge_qq_ohos` 由 `default_package` 自动带入。
-- 微信需要配置 `querySchemes`，并在 `EntryAbility.onCreate/onNewWant` 调用 `ShareBridgeWechatPlugin.handleWant(want)` 接收分享结果。
-- QQ 需要配置 `qqopenapi` 回调 scheme，并开启 `useNormalizedOHMUrl`。
-- QQ HarmonyOS 分享需要业务后台签名，通过 `QqShareProvider(qqHarmonySigner: ...)` 接入。
-- 调试前需要用 DevEco Studio 为 `ohos` 工程生成本机调试签名；证书、keystore、`local.properties` 不提交。
+- Host apps normally depend on `share_bridge_wechat` / `share_bridge_qq`; `share_bridge_wechat_ohos` / `share_bridge_qq_ohos` are pulled in by `default_package`.
+- WeChat requires query schemes and forwarding `EntryAbility.onCreate/onNewWant` to `ShareBridgeWechatPlugin.handleWant(want)` so final share results can be received.
+- QQ requires the `qqopenapi` callback scheme and `useNormalizedOHMUrl`.
+- QQ HarmonyOS sharing requires backend signing through `QqShareProvider(qqHarmonySigner: ...)`.
+- Before debugging, generate a local debug signing config for the `ohos` project in DevEco Studio. Certificates, keystores, and `local.properties` are not committed.
 
-详细说明：
+See:
 
-- [Android 配置](docs/android_setup.md)
-- [iOS 配置](docs/ios_setup.md)
-- [HarmonyOS 配置](docs/harmonyos_setup.md)
-- [隐私说明](docs/privacy.md)
+- [Android setup](docs/android_setup.md)
+- [iOS setup](docs/ios_setup.md)
+- [HarmonyOS setup](docs/harmonyos_setup_EN.md)
+- [Privacy notes](docs/privacy.md)
 
-## 本地示例
+## Local Example
 
 ```sh
 cd example
-fvm flutter run \
-  --dart-define=WECHAT_APP_ID=你的微信AppID \
-  --dart-define=QQ_APP_ID=你的QQ互联AppID
+flutter run \
+  --dart-define=WECHAT_APP_ID=your_wechat_app_id \
+  --dart-define=QQ_APP_ID=your_qq_app_id
 ```
 
-HarmonyOS 本地调试：
+HarmonyOS local debugging:
 
 ```sh
-direnv allow
 cd example
-fvm spawn custom_3.27.4_ohos_dev run -d <device-id> \
-  --dart-define=WECHAT_APP_ID=你的微信AppID \
-  --dart-define=QQ_APP_ID=你的QQ互联AppID
+flutter run -d <device-id> \
+  --dart-define=WECHAT_APP_ID=your_wechat_app_id \
+  --dart-define=QQ_APP_ID=your_qq_app_id
 ```
 
-`dart-define` 只传给 Dart 层，不会自动修改 AndroidManifest、Info.plist、HarmonyOS `module.json5` 或开放平台后台配置。
+`dart-define` only passes values to Dart code. It does not update AndroidManifest, Info.plist, HarmonyOS `module.json5`, or developer console settings.
 
-## 错误处理
+## Error Handling
 
-所有分享结果都会归一为 `ShareResult`：
+All share operations return a normalized `ShareResult`:
 
 ```dart
 switch (result.code) {
@@ -220,49 +211,54 @@ switch (result.code) {
 }
 ```
 
-常见错误：
+Common result codes:
 
-| 错误码 | 含义 |
+| Code | Meaning |
 | --- | --- |
-| `appNotInstalled` | 目标 App 未安装 |
-| `configError` | AppID、URL Scheme、Manifest、Info.plist 等配置错误 |
-| `permissionDenied` | 隐私授权或 SDK 权限要求未满足 |
-| `unsupportedChannel` | 当前 provider 不支持该分享目标 |
-| `unsupportedContent` | 当前平台不支持该内容类型 |
-| `busy` | 上一个分享请求还在等待回调 |
+| `appNotInstalled` | Target app is not installed |
+| `configError` | AppID, URL scheme, AndroidManifest, Info.plist, or related setup is incorrect |
+| `permissionDenied` | Privacy consent or SDK permission requirement is not satisfied |
+| `unsupportedChannel` | The provider does not support the target channel |
+| `unsupportedContent` | The platform does not support the content type |
+| `busy` | A previous share request is still waiting for callback |
 
-## 开发检查
-
-```sh
-cd packages/share_bridge_core && fvm dart analyze && fvm dart test
-cd packages/share_bridge_widgets && fvm flutter analyze && fvm flutter test
-cd packages/share_bridge_platform_interface && fvm flutter analyze && fvm flutter test
-cd packages/share_bridge_wechat_ohos && fvm flutter analyze && fvm flutter test
-cd packages/share_bridge_qq_ohos && fvm flutter analyze && fvm flutter test
-cd packages/share_bridge_wechat && fvm flutter analyze && fvm flutter test
-cd packages/share_bridge_qq && fvm flutter analyze && fvm flutter test
-cd packages/share_bridge_wechat_android && fvm flutter analyze
-cd packages/share_bridge_wechat_ios && fvm flutter analyze
-cd packages/share_bridge_qq_android && fvm flutter analyze
-cd packages/share_bridge_qq_ios && fvm flutter analyze
-```
-
-原生构建：
+## Development Checks
 
 ```sh
-cd example && fvm flutter build apk --debug
-cd example && fvm flutter build ios --debug --no-codesign
+cd packages/share_bridge_core && dart analyze && dart test
+cd packages/share_bridge_widgets && flutter analyze && flutter test
+cd packages/share_bridge_platform_interface && flutter analyze && flutter test
+cd packages/share_bridge_wechat_ohos && flutter analyze && flutter test
+cd packages/share_bridge_qq_ohos && flutter analyze && flutter test
+cd packages/share_bridge_wechat && flutter analyze && flutter test
+cd packages/share_bridge_qq && flutter analyze && flutter test
+cd packages/share_bridge_wechat_android && flutter analyze
+cd packages/share_bridge_wechat_ios && flutter analyze
+cd packages/share_bridge_qq_android && flutter analyze
+cd packages/share_bridge_qq_ios && flutter analyze
 ```
 
-## 发布状态
+Native builds:
 
-当前版本仍在真机调试和 API 收敛阶段，暂未发布到 pub.dev。发布前需要完成：
+```sh
+cd example && flutter build apk --debug
+cd example && flutter build ios --debug --no-codesign
+```
 
-- Android / iOS 真机回调验证
-- pub.dev dry-run
-- package 间依赖切换为 hosted 版本
-- 平台配置文档和故障排查补全
+## Packages on pub.dev
 
-## 设计原则
+- [share_bridge_core](https://pub.dev/packages/share_bridge_core)
+- [share_bridge_wechat](https://pub.dev/packages/share_bridge_wechat)
+- [share_bridge_qq](https://pub.dev/packages/share_bridge_qq)
+- [share_bridge_widgets](https://pub.dev/packages/share_bridge_widgets)
 
-`register()` 即初始化，`share()` 只负责分享调度和错误归一。这一点接近 `fluwx`、`tencent_kit` 这类 SDK 包的使用方式；`share_plus` 是系统分享面板封装，不适合作为微信 / QQ SDK 初始化模型参考。
+Before publishing:
+
+- Verify Android / iOS callbacks on real devices
+- Run pub.dev dry-run checks
+- Switch internal package dependencies to hosted versions
+- Complete platform setup and troubleshooting docs
+
+## Design Principle
+
+`register()` initializes the SDK, and `share()` dispatches share requests and normalizes errors. This is closer to SDK wrappers such as `fluwx` and `tencent_kit`. `share_plus` wraps the system share sheet and is not a good model for WeChat / QQ SDK initialization.

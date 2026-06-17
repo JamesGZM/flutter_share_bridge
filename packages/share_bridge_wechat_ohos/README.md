@@ -1,26 +1,25 @@
 # share_bridge_wechat_ohos
 
-`share_bridge_wechat` 的 HarmonyOS 平台实现包。
+[![Pub Package](https://img.shields.io/pub/v/share_bridge_wechat_ohos.svg)](https://pub.dev/packages/share_bridge_wechat_ohos)
+[![License](https://img.shields.io/github/license/JamesGZM/flutter_share_bridge)](https://github.com/JamesGZM/flutter_share_bridge/blob/master/LICENSE)
 
-通常无需直接依赖本包；业务侧依赖 `share_bridge_wechat` 即可通过 endorsed federated plugin 自动接入。
+[Chinese](README_CN.md)
 
-## 能力
+HarmonyOS implementation package for `share_bridge_wechat`.
 
-- 微信好友网页分享
-- 微信朋友圈网页分享
-- 微信好友图片分享
-- 微信朋友圈图片分享
+Applications usually do not depend on this package directly. Depend on `share_bridge_wechat`; Flutter will load this endorsed platform package for HarmonyOS.
 
-HarmonyOS 微信分享不需要 `qqHarmonySigner` 这类签名回调，继续使用 `ShareContent.webpage` / `ShareContent.image`。
+## Capabilities
 
-## 宿主配置
+- WeChat session webpage sharing
+- WeChat timeline webpage sharing
+- WeChat session image sharing
+- WeChat timeline image sharing
 
-宿主 App 通常依赖 `share_bridge_wechat`，不直接依赖本包。
+WeChat HarmonyOS sharing does not require a signing callback like `qqHarmonySigner`; it continues to use `ShareContent.webpage` and `ShareContent.image`.
 
-HarmonyOS 工程仍需要完成：
+## Host Setup
 
-- `module.json5` 声明 `weixin`、`wxopensdk` 查询 scheme。
-- `EntryAbility.onCreate/onNewWant` 调用 `ShareBridgeWechatPlugin.handleWant(want)`，用于接收微信分享成功、取消或错误回调。
-- DevEco Studio 中配置本机调试签名；签名、证书、keystore、`local.properties` 不提交。
+The HarmonyOS project still needs query schemes for `weixin` and `wxopensdk`, callback forwarding to `ShareBridgeWechatPlugin.handleWant(want)`, and a local debug signing config generated in DevEco Studio.
 
-完整说明见仓库根目录 [HarmonyOS 接入说明](../../docs/harmonyos_setup.md)。
+See the repository-level HarmonyOS setup guide for details.

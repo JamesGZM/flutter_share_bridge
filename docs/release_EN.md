@@ -8,7 +8,7 @@ The current development phase intentionally uses local `path` dependencies to ke
 
 Verified:
 
-- `share_bridge_core`: `fvm dart pub publish --dry-run` passes with 0 warnings.
+- `share_bridge_core`: `dart pub publish --dry-run` passes with 0 warnings.
 - `share_bridge_widgets`: dry-run is blocked by the local `path` dependency on `share_bridge_core`.
 - `share_bridge_wechat`: dry-run is blocked by the local `path` dependency on `share_bridge_core`.
 - `share_bridge_qq`: dry-run is blocked by the local `path` dependency on `share_bridge_core`.
@@ -39,40 +39,40 @@ dependencies:
 
 ```sh
 cd packages/share_bridge_core
-fvm dart analyze
-fvm dart test
-fvm dart pub publish --dry-run
+dart analyze
+dart test
+dart pub publish --dry-run
 ```
 
 Flutter packages:
 
 ```sh
 cd packages/share_bridge_widgets
-fvm flutter analyze
-fvm flutter test
-fvm flutter pub publish --dry-run
+flutter analyze
+flutter test
+flutter pub publish --dry-run
 
 cd packages/share_bridge_wechat
-fvm flutter analyze
-fvm flutter test
-fvm flutter pub publish --dry-run
+flutter analyze
+flutter test
+flutter pub publish --dry-run
 
 cd packages/share_bridge_qq
-fvm flutter analyze
-fvm flutter test
-fvm flutter pub publish --dry-run
+flutter analyze
+flutter test
+flutter pub publish --dry-run
 ```
 
 Native plugin examples:
 
 ```sh
 cd packages/share_bridge_wechat/example
-fvm flutter build apk --debug
-fvm flutter build ios --debug --no-codesign
+flutter build apk --debug
+flutter build ios --debug --no-codesign
 
 cd packages/share_bridge_qq/example
-fvm flutter build apk --debug
-fvm flutter build ios --debug --no-codesign
+flutter build apk --debug
+flutter build ios --debug --no-codesign
 ```
 
 ## SDK And License Checks

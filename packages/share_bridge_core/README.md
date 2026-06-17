@@ -1,12 +1,15 @@
 # share_bridge_core
 
-[English](README_EN.md) | 中文
+[![Pub Package](https://img.shields.io/pub/v/share_bridge_core.svg)](https://pub.dev/packages/share_bridge_core)
+[![License](https://img.shields.io/github/license/JamesGZM/flutter_share_bridge)](https://github.com/JamesGZM/flutter_share_bridge/blob/master/LICENSE)
 
-Share Bridge 的纯 Dart 核心库。
+[Chinese](README_CN.md)
 
-这个包定义分享客户端、分享渠道、分享内容、统一结果码、Provider 协议和 `ShareManager`。它不依赖 Flutter、不依赖原生平台 SDK，也不包含任何 UI。
+The pure Dart core library for Share Bridge.
 
-## 使用示例
+This package defines share clients, share channels, share content models, unified result codes, the provider contract, and `ShareManager`. It does not depend on Flutter, native platform SDKs, or UI.
+
+## Example
 
 ```dart
 final manager = ShareManager();
@@ -18,29 +21,21 @@ final installed = await manager.isInstalled(ShareClient.wechat);
 final result = await manager.share(
   channel: ShareChannel.wechatSession,
   content: const ShareContent.webpage(
-    title: '标题',
-    description: '描述',
+    title: 'Title',
+    description: 'Description',
     url: 'https://example.com',
   ),
 );
 ```
 
-`ShareClient` 表示真实客户端应用，例如微信或 QQ；`ShareChannel` 表示客户端下的分享目标，例如微信好友、朋友圈、QQ 好友或 QQ 空间。安装检查统一使用 `ShareManager.isInstalled(ShareClient.xxx)`，真实分享时 `ShareManager.share()` 仍会内部处理未安装错误。
+`ShareClient` represents a real client app, such as WeChat or QQ. `ShareChannel` represents a share destination inside that client, such as WeChat session, WeChat timeline, QQ friend, or QZone.
 
-`ShareManager.register(provider)` 会立即初始化 provider。宿主 App 应在用户同意隐私政策并完成必要配置后再注册相关 provider。
+`ShareManager.register(provider)` initializes the provider immediately. Host apps should register providers only after the user has accepted the app privacy policy and the required platform configuration is ready.
 
-图片只支持本地文件和内存数据：
+Image sharing supports local files and in-memory bytes only. Network images and Flutter assets should be resolved by the host app before creating `ShareContent.image`.
 
-```dart
-const ShareContent.image(
-  image: ShareImageSource.file('/path/to/image.png'),
-);
-```
+## Scope
 
-网络图片和 Flutter asset 需要宿主 App 自行下载或读取后，再传入本地文件路径或 `Uint8List`。
-
-## 范围
-
-- 不包含微信或 QQ SDK。
-- 不包含 MethodChannel 实现。
-- 不包含 UI 组件或品牌图标资源。
+- No WeChat or QQ SDK dependency.
+- No MethodChannel implementation.
+- No UI components or brand icon assets.

@@ -1,20 +1,18 @@
 # share_bridge_qq_ohos
 
-[English](README_EN.md) | 中文
+[![Pub Package](https://img.shields.io/pub/v/share_bridge_qq_ohos.svg)](https://pub.dev/packages/share_bridge_qq_ohos)
+[![License](https://img.shields.io/github/license/JamesGZM/flutter_share_bridge)](https://github.com/JamesGZM/flutter_share_bridge/blob/master/LICENSE)
 
-Share Bridge 的 QQ HarmonyOS 分享实现包。
+[Chinese](README_CN.md)
 
-普通宿主 App 不需要直接依赖本包；依赖 `share_bridge_qq` 后，HarmonyOS 平台会通过 endorsed federated plugin 机制自动引入。
+HarmonyOS implementation of QQ sharing for Share Bridge.
 
-QQ HarmonyOS 分享需要业务后台完成 `shareJson + timestamp + nonce` 的签名。本包只接收 `QqShareProvider.qqHarmonySigner` 返回的已签名数据并转发给 QQ HarmonyOS SDK，不在客户端保存或计算 AppKey。
+Applications usually do not depend on this package directly. Depend on `share_bridge_qq`; Flutter will load this endorsed platform package for HarmonyOS.
 
-## 宿主配置
+QQ HarmonyOS sharing requires the business backend to sign `shareJson + timestamp + nonce`. This package only forwards signed data returned by `QqShareProvider.qqHarmonySigner` to the QQ HarmonyOS SDK. It never stores or computes the AppKey on the client.
 
-HarmonyOS 工程仍需要完成：
+## Host Setup
 
-- `module.json5` 声明 `https`、`qqopenapi` 查询 scheme。
-- Ability `skills` 配置 `qqopenapi` 回调，`host` 填 QQ 互联 AppID，`pathRegex` 包含 `auth|share`。
-- `build-profile.json5` 开启 `strictMode.useNormalizedOHMUrl`。
-- DevEco Studio 中配置本机调试签名；签名、证书、keystore、`local.properties` 不提交。
+The HarmonyOS project still needs query schemes for `https` and `qqopenapi`, a `qqopenapi` callback skill, `strictMode.useNormalizedOHMUrl`, and a local debug signing config generated in DevEco Studio.
 
-完整说明见仓库根目录 [HarmonyOS 接入说明](../../docs/harmonyos_setup.md)。
+See the repository-level HarmonyOS setup guide for details.

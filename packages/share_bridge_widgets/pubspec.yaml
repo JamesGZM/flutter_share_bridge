@@ -1,7 +1,17 @@
 name: share_bridge_widgets
-description: Share Bridge 的可选 Flutter 分享 UI 组件。
-version: 0.1.0-dev.1
-repository: https://github.com/JamesGZM/flutter_share_bridge
+description: Optional Flutter share UI widgets for Share Bridge.
+version: 0.1.0-dev.2
+homepage: https://github.com/JamesGZM/flutter_share_bridge
+repository: https://github.com/JamesGZM/flutter_share_bridge/tree/master/packages/share_bridge_widgets
+issue_tracker: https://github.com/JamesGZM/flutter_share_bridge/issues
+topics:
+  - flutter
+  - share
+  - widgets
+  - social-sharing
+platforms:
+  android:
+  ios:
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

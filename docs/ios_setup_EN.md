@@ -113,7 +113,7 @@ The example supports passing the WeChat AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_wechat/example
-fvm flutter run --dart-define=WECHAT_APP_ID=your_wechat_app_id
+flutter run --dart-define=WECHAT_APP_ID=your_wechat_app_id
 ```
 
 `dart-define` is only passed to Dart. iOS URL Scheme, Associated Domains, Universal Link, and Open Platform settings must still be configured in Xcode and the WeChat Open Platform.
@@ -240,7 +240,7 @@ The example supports passing the QQ AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_qq/example
-fvm flutter run --dart-define=QQ_APP_ID=your_qq_app_id
+flutter run --dart-define=QQ_APP_ID=your_qq_app_id
 ```
 
 `dart-define` is only passed to Dart. iOS URL Scheme, Associated Domains, Universal Link, and QQ Connect settings must still be configured in Xcode and QQ Connect. The example's `tencentyour_qq_app_id` is a placeholder and must be replaced before real-device debugging.
@@ -258,7 +258,7 @@ The iOS side includes URL Scheme placeholders, `LSApplicationQueriesSchemes`, an
 
 ```sh
 cd example
-fvm flutter run \
+flutter run \
   --dart-define=WECHAT_APP_ID=your_wechat_app_id \
   --dart-define=QQ_APP_ID=your_qq_app_id
 ```

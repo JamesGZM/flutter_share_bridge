@@ -78,7 +78,7 @@ class WXEntryActivity : ShareBridgeWechatEntryActivity()
 
 ```sh
 cd packages/share_bridge_wechat/example
-fvm flutter run --dart-define=WECHAT_APP_ID=你的微信AppID
+flutter run --dart-define=WECHAT_APP_ID=你的微信AppID
 ```
 
 真机调试前请先确认：
@@ -204,7 +204,7 @@ ${applicationId}.fileprovider
 
 ```sh
 cd packages/share_bridge_qq/example
-fvm flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
+flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
 ```
 
 示例工程已经内置 QQ SDK 所需的 `AuthActivity`、`AssistActivity` 和 FileProvider 模板。真机调试前需要把：
@@ -241,7 +241,7 @@ Android 侧已经放入微信 `WXEntryActivity`、QQ `AuthActivity` / `AssistAct
 
 ```sh
 cd example
-fvm flutter run \
+flutter run \
   --dart-define=WECHAT_APP_ID=你的微信AppID \
   --dart-define=QQ_APP_ID=你的QQ互联AppID
 ```

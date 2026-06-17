@@ -78,7 +78,7 @@ The example supports passing the WeChat AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_wechat/example
-fvm flutter run --dart-define=WECHAT_APP_ID=your_wechat_app_id
+flutter run --dart-define=WECHAT_APP_ID=your_wechat_app_id
 ```
 
 Before testing on a real device, confirm:
@@ -204,7 +204,7 @@ The example supports passing the QQ AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_qq/example
-fvm flutter run --dart-define=QQ_APP_ID=your_qq_app_id
+flutter run --dart-define=QQ_APP_ID=your_qq_app_id
 ```
 
 The example includes templates for `AuthActivity`, `AssistActivity`, and FileProvider. Before real-device debugging, replace:

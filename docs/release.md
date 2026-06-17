@@ -8,7 +8,7 @@
 
 已验证：
 
-- `share_bridge_core`：`fvm dart pub publish --dry-run` 通过，0 warnings。
+- `share_bridge_core`：`dart pub publish --dry-run` 通过，0 warnings。
 - `share_bridge_widgets`：dry-run 阻塞于 `share_bridge_core` 本地 `path` 依赖。
 - `share_bridge_wechat`：dry-run 阻塞于 `share_bridge_core` 本地 `path` 依赖。
 - `share_bridge_qq`：dry-run 阻塞于 `share_bridge_core` 本地 `path` 依赖。
@@ -39,40 +39,40 @@ dependencies:
 
 ```sh
 cd packages/share_bridge_core
-fvm dart analyze
-fvm dart test
-fvm dart pub publish --dry-run
+dart analyze
+dart test
+dart pub publish --dry-run
 ```
 
 Flutter 包：
 
 ```sh
 cd packages/share_bridge_widgets
-fvm flutter analyze
-fvm flutter test
-fvm flutter pub publish --dry-run
+flutter analyze
+flutter test
+flutter pub publish --dry-run
 
 cd packages/share_bridge_wechat
-fvm flutter analyze
-fvm flutter test
-fvm flutter pub publish --dry-run
+flutter analyze
+flutter test
+flutter pub publish --dry-run
 
 cd packages/share_bridge_qq
-fvm flutter analyze
-fvm flutter test
-fvm flutter pub publish --dry-run
+flutter analyze
+flutter test
+flutter pub publish --dry-run
 ```
 
 原生插件额外编译示例：
 
 ```sh
 cd packages/share_bridge_wechat/example
-fvm flutter build apk --debug
-fvm flutter build ios --debug --no-codesign
+flutter build apk --debug
+flutter build ios --debug --no-codesign
 
 cd packages/share_bridge_qq/example
-fvm flutter build apk --debug
-fvm flutter build ios --debug --no-codesign
+flutter build apk --debug
+flutter build ios --debug --no-codesign
 ```
 
 ## SDK 与许可确认

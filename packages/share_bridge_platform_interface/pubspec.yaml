@@ -1,7 +1,13 @@
 name: share_bridge_platform_interface
-description: Shared platform interfaces for Share Bridge plugins.
-version: 0.1.0-dev.1
-repository: https://github.com/JamesGZM/flutter_share_bridge
+description: Shared platform interfaces for Share Bridge federated plugins.
+version: 0.1.0-dev.2
+homepage: https://github.com/JamesGZM/flutter_share_bridge
+repository: https://github.com/JamesGZM/flutter_share_bridge/tree/master/packages/share_bridge_platform_interface
+issue_tracker: https://github.com/JamesGZM/flutter_share_bridge/issues
+topics:
+  - flutter
+  - plugin-interface
+  - share
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -11,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  share_bridge_core: ^0.1.0-dev.1
+  share_bridge_core: ^0.1.0-dev.2
 
 dev_dependencies:
   flutter_test:
