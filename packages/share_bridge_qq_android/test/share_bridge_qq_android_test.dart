@@ -28,20 +28,6 @@ void main() {
     );
   });
 
-  test('setPrivacyGranted delegates to method channel', () async {
-    MethodCall? receivedCall;
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (methodCall) async {
-      receivedCall = methodCall;
-      return null;
-    });
-
-    await platform.setPrivacyGranted(true);
-
-    expect(receivedCall?.method, 'setPrivacyGranted');
-    expect(receivedCall?.arguments, containsPair('granted', true));
-  });
-
   test('supports delegates to method channel', () async {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (methodCall) async {

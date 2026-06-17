@@ -27,12 +27,6 @@ final class ShareBridgeQqIOS extends ShareBridgePlatform {
     });
   }
 
-  Future<void> setPrivacyGranted(bool granted) async {
-    await methodChannel.invokeMethod<void>('setPrivacyGranted', {
-      'granted': granted,
-    });
-  }
-
   @override
   Future<bool> isInstalled() async {
     return await methodChannel.invokeMethod<bool>('isInstalled') ?? false;
