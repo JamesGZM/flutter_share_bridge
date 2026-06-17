@@ -1,7 +1,6 @@
 name: share_bridge_qq_android
 description: Android implementation of share_bridge_qq.
 version: 0.1.0-dev.1
-publish_to: none
 repository: https://github.com/JamesGZM/flutter_share_bridge
 
 environment:
@@ -11,8 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  share_bridge_platform_interface:
-    path: ../share_bridge_platform_interface
+  share_bridge_platform_interface: ^0.1.0-dev.1
 
 dev_dependencies:
   flutter_test:
