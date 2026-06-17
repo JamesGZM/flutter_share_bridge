@@ -2,7 +2,7 @@ name: share_bridge_wechat_android
 description: Android implementation of share_bridge_wechat.
 version: 0.1.0-dev.1
 publish_to: none
-repository: https://github.com/gongziming/flutter_share_bridge
+repository: https://github.com/JamesGZM/flutter_share_bridge
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
