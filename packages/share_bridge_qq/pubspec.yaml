@@ -20,11 +20,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  share_bridge_core: ^0.1.0-dev.2
-  share_bridge_qq_android: ^0.1.0-dev.2
-  share_bridge_qq_ios: ^0.1.0-dev.2
-  share_bridge_qq_ohos: ^0.1.0-dev.2
-  share_bridge_platform_interface: ^0.1.0-dev.2
+  share_bridge_core: ^0.1.0-dev.3
+  share_bridge_qq_android: ^0.1.0-dev.3
+  share_bridge_qq_ios: ^0.1.0-dev.3
+  share_bridge_qq_ohos: ^0.1.0-dev.3
+  share_bridge_platform_interface: ^0.1.0-dev.3
 
 dev_dependencies:
   flutter_test:

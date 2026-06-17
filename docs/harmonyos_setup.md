@@ -29,6 +29,24 @@ Host apps still need to configure `module.json5` according to QQ Connect Harmony
 
 The QQ SDK HAR is bytecode-compiled, so host projects also need to enable `useNormalizedOHMUrl` according to QQ Connect documentation.
 
+The host `EntryAbility` must forward QQ callback `want` objects to the plugin during cold and warm starts. This calls the QQ SDK `handleResult(want)` path used by the official HarmonyOS demo:
+
+```ts
+import Want from '@ohos.app.ability.Want';
+import AbilityConstant from '@ohos.app.ability.AbilityConstant';
+import ShareBridgeQqPlugin from 'share_bridge_qq_ohos';
+
+onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
+  super.onCreate(want, launchParam)
+  ShareBridgeQqPlugin.handleWant(want)
+}
+
+onNewWant(want: Want, launchParams: AbilityConstant.LaunchParam): void {
+  super.onNewWant(want, launchParams)
+  ShareBridgeQqPlugin.handleWant(want)
+}
+```
+
 ### Signing Callback
 
 QQ HarmonyOS sharing requires signing `shareJson + timestamp + nonce`. The AppKey must not be stored in the client, so the plugin does not compute signatures. Instead, it uses the optional `qqHarmonySigner` callback on `QqShareProvider`.

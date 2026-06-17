@@ -37,6 +37,9 @@
             ]
           },
           {
+            "entities": [
+              "entity.system.browser"
+            ],
             "actions": [
               "ohos.want.action.viewData"
             ],
@@ -44,9 +47,10 @@
               {
                 "scheme": "qqopenapi",
                 "host": "your_qq_app_id",
-                "pathRegex": "auth|share"
+                "pathRegex": "\\b(auth|share)\\b"
               }
-            ]
+            ],
+            "domainVerify": true
           }
         ]
       }

@@ -29,6 +29,24 @@ QQ HarmonyOS 使用独立实现包 `share_bridge_qq_ohos`。普通宿主 App 只
 
 QQ SDK 的 HAR 包采用字节码编译，宿主工程还需要按 QQ 互联文档开启 `useNormalizedOHMUrl`。
 
+宿主 `EntryAbility` 还需要在冷启动和热启动时把 QQ 回调 `want` 交给插件处理。这一步会走 QQ 官方 HarmonyOS demo 中的 `handleResult(want)` 回调路径：
+
+```ts
+import Want from '@ohos.app.ability.Want';
+import AbilityConstant from '@ohos.app.ability.AbilityConstant';
+import ShareBridgeQqPlugin from 'share_bridge_qq_ohos';
+
+onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
+  super.onCreate(want, launchParam)
+  ShareBridgeQqPlugin.handleWant(want)
+}
+
+onNewWant(want: Want, launchParams: AbilityConstant.LaunchParam): void {
+  super.onNewWant(want, launchParams)
+  ShareBridgeQqPlugin.handleWant(want)
+}
+```
+
 ### 签名回调
 
 QQ HarmonyOS 分享需要对 `shareJson + timestamp + nonce` 进行签名。AppKey 不能放在客户端，因此插件不计算签名，而是通过 `QqShareProvider` 的可选 `qqHarmonySigner` 交给业务后台完成。

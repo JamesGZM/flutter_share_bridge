@@ -14,6 +14,7 @@ HarmonyOS 工程仍需要完成：
 
 - `module.json5` 声明 `https`、`qqopenapi` 查询 scheme。
 - Ability `skills` 配置 `qqopenapi` 回调，`host` 填 QQ 互联 AppID，`pathRegex` 包含 `auth|share`。
+- `EntryAbility.onCreate/onNewWant` 调用 `ShareBridgeQqPlugin.handleWant(want)` 转发 QQ 回调。
 - `build-profile.json5` 开启 `strictMode.useNormalizedOHMUrl`。
 - DevEco Studio 中配置本机调试签名；签名、证书、keystore、`local.properties` 不提交。
 

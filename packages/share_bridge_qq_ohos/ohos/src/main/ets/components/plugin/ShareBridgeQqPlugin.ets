@@ -7,17 +7,38 @@ import {
   MethodResult,
 } from '@ohos/flutter_ohos';
 import common from '@ohos.app.ability.common';
+import Want from '@ohos.app.ability.Want';
 import {
   IQQOpenApi,
+  OpenApiConfig,
   QQOpenApiFactory,
   ShareData,
   ShareResult,
 } from '@tencent/qq-open-sdk';
 
 export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHandler {
+  private static activePlugin: ShareBridgeQqPlugin | null = null;
+  private static pendingWant: Want | null = null;
+
   private channel: MethodChannel | null = null;
   private context: common.Context | null = null;
   private qqApi: IQQOpenApi | null = null;
+
+  static handleWant(want: Want): boolean {
+    if (!ShareBridgeQqPlugin.isQqCallbackWant(want)) {
+      return false;
+    }
+    const handled = ShareBridgeQqPlugin.activePlugin?.handleWant(want) ?? false;
+    if (!handled) {
+      ShareBridgeQqPlugin.pendingWant = want;
+    }
+    return handled;
+  }
+
+  private static isQqCallbackWant(want: Want): boolean {
+    const uri = want.uri ?? '';
+    return uri.includes('qqopenapi');
+  }
 
   getUniqueClassName(): string {
     return 'ShareBridgeQqPlugin';
@@ -27,6 +48,7 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
     this.channel = new MethodChannel(binding.getBinaryMessenger(), 'share_bridge_qq');
     this.channel.setMethodCallHandler(this);
     this.context = binding.getApplicationContext();
+    ShareBridgeQqPlugin.activePlugin = this;
   }
 
   onDetachedFromEngine(binding: FlutterPluginBinding): void {
@@ -36,6 +58,9 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
     this.channel = null;
     this.context = null;
     this.qqApi = null;
+    if (ShareBridgeQqPlugin.activePlugin === this) {
+      ShareBridgeQqPlugin.activePlugin = null;
+    }
   }
 
   onMethodCall(call: MethodCall, result: MethodResult): void {
@@ -65,8 +90,31 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
       result.error('configError', 'QQ appId must be a numeric string.', null);
       return;
     }
-    this.qqApi = QQOpenApiFactory.createApi(numericAppId);
+    const openApiConfig: OpenApiConfig = {
+      forceEnableWeb: false,
+    };
+    this.qqApi = QQOpenApiFactory.createApi(numericAppId, openApiConfig);
+    this.consumePendingWant();
     result.success(null);
+  }
+
+  private handleWant(want: Want): boolean {
+    const api = this.qqApi;
+    if (!api) {
+      return false;
+    }
+    api.handleResult(want);
+    return true;
+  }
+
+  private consumePendingWant(): void {
+    const want = ShareBridgeQqPlugin.pendingWant;
+    if (!want) {
+      return;
+    }
+    if (this.handleWant(want)) {
+      ShareBridgeQqPlugin.pendingWant = null;
+    }
   }
 
   private supports(call: MethodCall): boolean {

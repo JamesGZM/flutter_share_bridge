@@ -13,6 +13,6 @@ QQ HarmonyOS sharing requires the business backend to sign `shareJson + timestam
 
 ## Host Setup
 
-The HarmonyOS project still needs query schemes for `https` and `qqopenapi`, a `qqopenapi` callback skill, `strictMode.useNormalizedOHMUrl`, and a local debug signing config generated in DevEco Studio.
+The HarmonyOS project still needs query schemes for `https` and `qqopenapi`, a `qqopenapi` callback skill, `strictMode.useNormalizedOHMUrl`, forwarding from `EntryAbility.onCreate/onNewWant` to `ShareBridgeQqPlugin.handleWant(want)`, and a local debug signing config generated in DevEco Studio.
 
 See the repository-level HarmonyOS setup guide for details.

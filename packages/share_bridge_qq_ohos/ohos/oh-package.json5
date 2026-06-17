@@ -1,6 +1,6 @@
 {
   "name": "share_bridge_qq_ohos",
-  "version": "0.1.0-dev.1",
+  "version": "0.1.0",
   "description": "HarmonyOS implementation of share_bridge_qq.",
   "main": "index.ets",
   "author": "",
