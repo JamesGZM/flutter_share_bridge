@@ -1,43 +1,64 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:share_bridge_core/share_bridge_core.dart';
 import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
+import 'package:share_bridge_wechat_android/share_bridge_wechat_android.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final platform = MethodChannelShareBridgeWechat();
+  final initialPlatform = ShareBridgePlatform.instanceFor(ShareClient.wechat);
+  final platform = ShareBridgeWechatAndroid();
   const channel = MethodChannel('share_bridge_wechat');
 
-  setUp(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (methodCall) async {
-      return switch (methodCall.method) {
-        'initialize' => null,
-        'isInstalled' => true,
-        'shareWebPage' => {
-            'code': 'success',
-            'message': null,
-          },
-        'shareImage' => {
-            'code': 'cancelled',
-            'message': 'cancelled',
-          },
-        _ => throw PlatformException(code: 'unimplemented'),
-      };
-    });
-  });
-
   tearDown(() {
+    ShareBridgePlatform.register(
+      client: ShareClient.wechat,
+      instance: initialPlatform,
+    );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
 
+  test('registerWith installs Android implementation', () {
+    ShareBridgeWechatAndroid.registerWith();
+
+    expect(
+      ShareBridgePlatform.instanceFor(ShareClient.wechat),
+      isA<ShareBridgeWechatAndroid>(),
+    );
+  });
+
   test('isInstalled delegates to method channel', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (methodCall) async {
+      return true;
+    });
+
     expect(await platform.isInstalled(), isTrue);
   });
 
+  test('supports delegates to method channel', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (methodCall) async {
+      return true;
+    });
+
+    final supported = await platform.supports(
+      channel: ShareChannel.wechatSession,
+      content: const ShareImageContent(
+        image: ShareImageSource.file('/tmp/a.png'),
+      ),
+    );
+
+    expect(supported, isTrue);
+  });
+
   test('shareWebPage maps native result', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (methodCall) async {
+      return {'code': 'success', 'message': null};
+    });
+
     final result = await platform.shareWebPage(
       requestId: '1',
       channel: ShareChannel.wechatSession,
@@ -56,10 +77,7 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (methodCall) async {
       receivedCall = methodCall;
-      return {
-        'code': 'success',
-        'message': null,
-      };
+      return {'code': 'success', 'message': null};
     });
 
     await platform.shareImage(

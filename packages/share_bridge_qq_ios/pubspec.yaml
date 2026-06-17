@@ -25,3 +25,4 @@ flutter:
     platforms:
       ios:
         pluginClass: ShareBridgeQqPlugin
+        dartPluginClass: ShareBridgeQqIOS

@@ -1,6 +1,5 @@
 library;
 
-export 'src/qq_method_channel.dart';
-export 'src/qq_platform.dart';
-export 'src/wechat_method_channel.dart';
-export 'src/wechat_platform.dart';
+export 'package:share_bridge_core/share_bridge_core.dart';
+
+export 'src/share_bridge_platform.dart';

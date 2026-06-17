@@ -5,7 +5,7 @@ import 'package:share_bridge_platform_interface/share_bridge_platform_interface.
 
 class MockShareBridgeWechatPlatform
     with MockPlatformInterfaceMixin
-    implements ShareBridgeWechatPlatform {
+    implements ShareBridgePlatform {
   bool initialized = false;
 
   @override
@@ -18,6 +18,14 @@ class MockShareBridgeWechatPlatform
 
   @override
   Future<bool> isInstalled() async => true;
+
+  @override
+  Future<bool> supports({
+    required ShareChannel channel,
+    required ShareContent content,
+  }) async {
+    return true;
+  }
 
   @override
   Future<ShareResult> shareImage({
@@ -39,19 +47,21 @@ class MockShareBridgeWechatPlatform
 }
 
 void main() {
-  final initialPlatform = ShareBridgeWechatPlatform.instance;
+  final initialPlatform = ShareBridgePlatform.instanceFor(ShareClient.wechat);
 
   tearDown(() {
-    ShareBridgeWechatPlatform.instance = initialPlatform;
-  });
-
-  test('$MethodChannelShareBridgeWechat is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelShareBridgeWechat>());
+    ShareBridgePlatform.register(
+      client: ShareClient.wechat,
+      instance: initialPlatform,
+    );
   });
 
   test('initialize does not require plugin privacy flag', () async {
     final fakePlatform = MockShareBridgeWechatPlatform();
-    ShareBridgeWechatPlatform.instance = fakePlatform;
+    ShareBridgePlatform.register(
+      client: ShareClient.wechat,
+      instance: fakePlatform,
+    );
     final provider = WechatShareProvider(appId: 'wx123');
 
     await provider.initialize();
@@ -61,7 +71,10 @@ void main() {
 
   test('shares webpage through platform', () async {
     final fakePlatform = MockShareBridgeWechatPlatform();
-    ShareBridgeWechatPlatform.instance = fakePlatform;
+    ShareBridgePlatform.register(
+      client: ShareClient.wechat,
+      instance: fakePlatform,
+    );
     final provider = WechatShareProvider(appId: 'wx123');
 
     await provider.initialize();

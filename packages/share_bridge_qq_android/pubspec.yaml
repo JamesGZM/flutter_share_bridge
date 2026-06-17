@@ -26,3 +26,4 @@ flutter:
       android:
         package: com.gongziming.share_bridge_qq
         pluginClass: ShareBridgeQqPlugin
+        dartPluginClass: ShareBridgeQqAndroid

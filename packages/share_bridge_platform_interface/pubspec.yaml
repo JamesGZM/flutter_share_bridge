@@ -1,5 +1,5 @@
 name: share_bridge_platform_interface
-description: Shared platform interfaces and MethodChannel implementations for Share Bridge plugins.
+description: Shared platform interfaces for Share Bridge plugins.
 version: 0.1.0-dev.1
 publish_to: none
 repository: https://github.com/gongziming/flutter_share_bridge

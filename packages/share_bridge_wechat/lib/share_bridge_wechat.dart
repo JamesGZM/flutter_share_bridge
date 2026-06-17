@@ -1,7 +1,6 @@
 library;
 
 import 'package:flutter/services.dart';
-import 'package:share_bridge_core/share_bridge_core.dart';
 import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 
 export 'package:share_bridge_core/share_bridge_core.dart';
@@ -11,12 +10,13 @@ final class WechatShareProvider implements ShareProvider {
   WechatShareProvider({
     required this.appId,
     this.universalLink,
-    ShareBridgeWechatPlatform? platform,
-  }) : _platform = platform ?? ShareBridgeWechatPlatform.instance;
+    ShareBridgePlatform? platform,
+  }) : _platform =
+            platform ?? ShareBridgePlatform.instanceFor(ShareClient.wechat);
 
   final String appId;
   final String? universalLink;
-  final ShareBridgeWechatPlatform _platform;
+  final ShareBridgePlatform _platform;
 
   bool _isInitialized = false;
   bool _isSharing = false;
@@ -76,8 +76,10 @@ final class WechatShareProvider implements ShareProvider {
     required ShareChannel channel,
     required ShareContent content,
   }) async {
-    return supportedChannels.contains(channel) &&
-        (content is ShareWebPageContent || content is ShareImageContent);
+    if (!supportedChannels.contains(channel)) {
+      return false;
+    }
+    return _platform.supports(channel: channel, content: content);
   }
 
   @override

@@ -1,7 +1,6 @@
 library;
 
 import 'package:flutter/services.dart';
-import 'package:share_bridge_core/share_bridge_core.dart';
 import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 
 export 'package:share_bridge_core/share_bridge_core.dart';
@@ -11,16 +10,23 @@ final class QqShareProvider implements ShareProvider {
   QqShareProvider({
     required this.appId,
     this.universalLink,
-    ShareBridgeQqPlatform? platform,
-  }) : _platform = platform ?? ShareBridgeQqPlatform.instance;
+    ShareBridgePlatform? platform,
+  }) : _platform = platform ?? ShareBridgePlatform.instanceFor(ShareClient.qq);
 
   static Future<void> setPrivacyGranted(bool granted) {
-    return ShareBridgeQqPlatform.instance.setPrivacyGranted(granted);
+    final platform = ShareBridgePlatform.instanceFor(ShareClient.qq);
+    if (platform is ShareBridgePrivacyControl) {
+      return (platform as ShareBridgePrivacyControl).setPrivacyGranted(granted);
+    }
+    throw StateError(
+      'The registered QQ platform implementation does not support '
+      'privacy control.',
+    );
   }
 
   final String appId;
   final String? universalLink;
-  final ShareBridgeQqPlatform _platform;
+  final ShareBridgePlatform _platform;
 
   bool _isInitialized = false;
   bool _isSharing = false;

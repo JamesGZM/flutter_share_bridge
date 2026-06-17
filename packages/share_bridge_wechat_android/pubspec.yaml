@@ -26,3 +26,4 @@ flutter:
       android:
         package: com.gongziming.share_bridge_wechat
         pluginClass: ShareBridgeWechatPlugin
+        dartPluginClass: ShareBridgeWechatAndroid

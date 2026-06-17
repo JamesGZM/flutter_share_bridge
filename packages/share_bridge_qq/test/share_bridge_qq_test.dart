@@ -5,7 +5,7 @@ import 'package:share_bridge_platform_interface/share_bridge_platform_interface.
 
 class MockShareBridgeQqPlatform
     with MockPlatformInterfaceMixin
-    implements ShareBridgeQqPlatform {
+    implements ShareBridgePlatform, ShareBridgePrivacyControl {
   bool initialized = false;
   bool? receivedPrivacyGranted;
 
@@ -53,19 +53,19 @@ class MockShareBridgeQqPlatform
 }
 
 void main() {
-  final initialPlatform = ShareBridgeQqPlatform.instance;
+  final initialPlatform = ShareBridgePlatform.instanceFor(ShareClient.qq);
 
   tearDown(() {
-    ShareBridgeQqPlatform.instance = initialPlatform;
-  });
-
-  test('$MethodChannelShareBridgeQq is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelShareBridgeQq>());
+    ShareBridgePlatform.register(
+      client: ShareClient.qq,
+      instance: initialPlatform,
+    );
   });
 
   test('setPrivacyGranted delegates to platform', () async {
     final fakePlatform = MockShareBridgeQqPlatform();
-    ShareBridgeQqPlatform.instance = fakePlatform;
+    ShareBridgePlatform.register(
+        client: ShareClient.qq, instance: fakePlatform);
 
     await QqShareProvider.setPrivacyGranted(true);
 
@@ -74,7 +74,8 @@ void main() {
 
   test('shares webpage through platform', () async {
     final fakePlatform = MockShareBridgeQqPlatform();
-    ShareBridgeQqPlatform.instance = fakePlatform;
+    ShareBridgePlatform.register(
+        client: ShareClient.qq, instance: fakePlatform);
     final provider = QqShareProvider(appId: '101');
 
     await provider.initialize();
