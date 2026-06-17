@@ -2,7 +2,7 @@
 
 English | [中文](release_CN.md)
 
-The current published version on pub.dev is `0.1.0-dev.3`.
+The current published version on pub.dev is `0.1.0-dev.4`.
 
 ## Published Packages
 
@@ -40,10 +40,23 @@ dart pub publish --dry-run
 If a package has no `*_test.dart` files, run only `flutter analyze` and
 `dart pub publish --dry-run`.
 
+## Publish Procedure
+
+1. Pick one version for all packages in the release train.
+2. Update every `packages/*/pubspec.yaml` `version`.
+3. Update all internal package constraints to the same version range.
+4. Update install snippets in root README, package README files, and design docs.
+5. Add a `CHANGELOG.md` entry for every package.
+6. Run analyze, tests, and `dart pub publish --dry-run` for every package.
+7. Publish in dependency order with `dart pub publish --force`.
+8. Re-check pub.dev pages after indexing finishes.
+
 ## Current Release Validation
 
-- All 11 packages were uploaded to pub.dev as `0.1.0-dev.3`.
+- All 11 packages were uploaded to pub.dev as `0.1.0-dev.4`.
 - Every package publish dry-run completed with 0 warnings.
+- The release updates SDK callback hardening for QQ Android, QQ iOS, QQ
+  HarmonyOS, and WeChat HarmonyOS.
 - Root and package READMEs default to English and link to `README_CN.md`.
 - `pubspec.yaml` includes `homepage`, monorepo package `repository`,
   `issue_tracker`, and `topics`.

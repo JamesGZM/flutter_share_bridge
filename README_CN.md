@@ -52,10 +52,10 @@ share_bridge_qq_ohos
 
 ```yaml
 dependencies:
-  share_bridge_core: ^0.1.0-dev.3
-  share_bridge_wechat: ^0.1.0-dev.3
-  share_bridge_qq: ^0.1.0-dev.3
-  share_bridge_widgets: ^0.1.0-dev.3
+  share_bridge_core: ^0.1.0-dev.4
+  share_bridge_wechat: ^0.1.0-dev.4
+  share_bridge_qq: ^0.1.0-dev.4
+  share_bridge_widgets: ^0.1.0-dev.4
 ```
 
 ## 快速开始
@@ -253,7 +253,7 @@ cd example && flutter build ios --debug --no-codesign
 - [share_bridge_qq](https://pub.dev/packages/share_bridge_qq)
 - [share_bridge_widgets](https://pub.dev/packages/share_bridge_widgets)
 
-当前已发布版本为 `0.1.0-dev.3`。每次发布后，pub.dev 的分数分析可能需要等待几分钟才会刷新。
+当前已发布版本为 `0.1.0-dev.4`。每次发布后，pub.dev 的分数分析可能需要等待几分钟才会刷新。
 
 ## 设计原则
 

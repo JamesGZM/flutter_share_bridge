@@ -42,10 +42,10 @@ docs/
 
 ```yaml
 dependencies:
-  share_bridge_core: ^0.1.0-dev.3
-  share_bridge_wechat: ^0.1.0-dev.3
-  share_bridge_qq: ^0.1.0-dev.3
-  share_bridge_widgets: ^0.1.0-dev.3
+  share_bridge_core: ^0.1.0-dev.4
+  share_bridge_wechat: ^0.1.0-dev.4
+  share_bridge_qq: ^0.1.0-dev.4
+  share_bridge_widgets: ^0.1.0-dev.4
 ```
 
 平台实现包通过 Flutter `default_package` endorsement 自动带入。

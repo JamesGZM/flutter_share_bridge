@@ -42,10 +42,10 @@ Host apps normally depend on wrapper packages:
 
 ```yaml
 dependencies:
-  share_bridge_core: ^0.1.0-dev.3
-  share_bridge_wechat: ^0.1.0-dev.3
-  share_bridge_qq: ^0.1.0-dev.3
-  share_bridge_widgets: ^0.1.0-dev.3
+  share_bridge_core: ^0.1.0-dev.4
+  share_bridge_wechat: ^0.1.0-dev.4
+  share_bridge_qq: ^0.1.0-dev.4
+  share_bridge_widgets: ^0.1.0-dev.4
 ```
 
 Platform implementation packages are pulled in by Flutter `default_package` endorsement.

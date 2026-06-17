@@ -1,3 +1,8 @@
+## 0.1.0-dev.4
+
+- Added busy and timeout guards for QQ HarmonyOS signed share requests.
+- Synchronized internal dependency constraints for the `0.1.0-dev.4` release.
+
 ## 0.1.0-dev.3
 
 - Improved pub.dev metadata descriptions and public API documentation.

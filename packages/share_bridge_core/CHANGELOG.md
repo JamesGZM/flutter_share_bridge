@@ -1,3 +1,7 @@
+## 0.1.0-dev.4
+
+- Synchronized package versioning and dependency guidance for the SDK callback hardening release.
+
 ## 0.1.0-dev.3
 
 - Improved pub.dev metadata descriptions and public API documentation.

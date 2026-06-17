@@ -91,6 +91,16 @@ dart pub publish --dry-run
 flutter pub publish --dry-run
 ```
 
+## 发布流程
+
+- 发布前统一确认版本号，所有 `packages/*/pubspec.yaml` 的 `version` 需要一致。
+- 所有内部依赖约束同步到本次版本，例如 `^0.1.0-dev.4`。
+- 根 README、包 README、`docs/design*.md`、`docs/release*.md` 中的安装示例同步到新版本。
+- 每个 package 的 `CHANGELOG.md` 必须先增加本次版本条目，且 `README.md` / `CHANGELOG.md` 尽量使用英文 ASCII，中文放到 `_CN.md`。
+- 按依赖顺序发布：`share_bridge_core`、`share_bridge_platform_interface`、平台实现包、wrapper 包、`share_bridge_widgets`。
+- 发布命令使用 `dart pub publish --force`，发布前必须先对同一 package 跑 `dart pub publish --dry-run`。
+- 发布后更新 `docs/release.md` 和 `docs/release_CN.md` 的当前版本和验证结果。
+
 ## Git 与工作区
 
 - 不要回滚用户已有改动，除非用户明确要求。

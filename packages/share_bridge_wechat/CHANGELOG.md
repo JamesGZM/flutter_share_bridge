@@ -1,3 +1,8 @@
+## 0.1.0-dev.4
+
+- Updated endorsed platform implementation constraints to `0.1.0-dev.4`.
+- Documents the HarmonyOS WeChat channel validation hardening release.
+
 ## 0.1.0-dev.3
 
 - Improved pub.dev metadata descriptions and public API documentation.

@@ -1,3 +1,9 @@
+## 0.1.0-dev.4
+
+- Pass the configured QQ universal link into share request objects.
+- Expanded QQ send result code mapping for invalid arguments, privacy authorization, configuration, and unsupported content.
+- Synchronized internal dependency constraints for the `0.1.0-dev.4` release.
+
 ## 0.1.0-dev.3
 
 - Improved pub.dev metadata descriptions and public API documentation.

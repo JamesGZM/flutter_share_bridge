@@ -52,10 +52,10 @@ Packages are published on pub.dev. Host apps can depend on the packages they nee
 
 ```yaml
 dependencies:
-  share_bridge_core: ^0.1.0-dev.3
-  share_bridge_wechat: ^0.1.0-dev.3
-  share_bridge_qq: ^0.1.0-dev.3
-  share_bridge_widgets: ^0.1.0-dev.3
+  share_bridge_core: ^0.1.0-dev.4
+  share_bridge_wechat: ^0.1.0-dev.4
+  share_bridge_qq: ^0.1.0-dev.4
+  share_bridge_widgets: ^0.1.0-dev.4
 ```
 
 ## Quick Start
@@ -253,7 +253,7 @@ cd example && flutter build ios --debug --no-codesign
 - [share_bridge_qq](https://pub.dev/packages/share_bridge_qq)
 - [share_bridge_widgets](https://pub.dev/packages/share_bridge_widgets)
 
-Published packages use `0.1.0-dev.3`. The package pages may take a few minutes
+Published packages use `0.1.0-dev.4`. The package pages may take a few minutes
 to refresh score analysis after each publish.
 
 ## Design Principle

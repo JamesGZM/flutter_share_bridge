@@ -2,7 +2,7 @@
 
 [English](release.md) | 中文
 
-当前已发布到 pub.dev 的版本是 `0.1.0-dev.3`。
+当前已发布到 pub.dev 的版本是 `0.1.0-dev.4`。
 
 ## 已发布包
 
@@ -39,10 +39,22 @@ dart pub publish --dry-run
 
 如果某个包没有 `*_test.dart`，只运行 `flutter analyze` 和 `dart pub publish --dry-run`。
 
+## 发布流程
+
+1. 本轮发布先确定一个统一版本号。
+2. 更新所有 `packages/*/pubspec.yaml` 的 `version`。
+3. 所有内部 package 依赖约束同步到同一版本范围。
+4. 根 README、包 README、设计文档中的安装示例同步到新版本。
+5. 每个 package 的 `CHANGELOG.md` 增加本次版本条目。
+6. 对每个 package 跑 analyze、测试和 `dart pub publish --dry-run`。
+7. 按依赖顺序执行 `dart pub publish --force`。
+8. 发布后等待 pub.dev 索引完成，再复查页面信息。
+
 ## 当前发布验证
 
-- `0.1.0-dev.3` 的 11 个包均已成功上传到 pub.dev。
+- `0.1.0-dev.4` 的 11 个包均已成功上传到 pub.dev。
 - 所有包 `dart pub publish --dry-run` / `flutter pub publish --dry-run` 为 0 warnings。
+- 本次发布包含 QQ Android、QQ iOS、QQ HarmonyOS、微信 HarmonyOS 的 SDK 回调链加固。
 - 根 README 和包 README 默认使用英文，并提供 `README_CN.md` 中文入口。
 - `pubspec.yaml` 已包含 `homepage`、monorepo 子路径 `repository`、`issue_tracker`、`topics`。
 - Android / iOS 相关包已声明 pub.dev 支持的顶层 `platforms`。
