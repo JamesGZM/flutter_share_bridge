@@ -1,5 +1,7 @@
 # share_bridge_wechat
 
+[English](README_EN.md) | 中文
+
 Share Bridge 的微信分享能力包。
 
 当前状态：

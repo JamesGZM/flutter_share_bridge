@@ -1,5 +1,7 @@
 # Android 接入说明
 
+[English](android_setup_EN.md) | 中文
+
 ## 微信分享
 
 当前 Android 侧已接入微信 OpenSDK：

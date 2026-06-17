@@ -1,5 +1,7 @@
 # Flutter Share Bridge
 
+English | [中文](README.md)
+
 Flutter Share Bridge is a modular Flutter social sharing plugin set for sharing content to WeChat, QQ, and QZone.
 
 It is share-only. It does not include login, payment, OAuth, or user profile APIs. You can depend on only the platform packages you need, and optionally use `share_bridge_widgets` for a Flutter share sheet UI.

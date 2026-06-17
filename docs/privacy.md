@@ -1,5 +1,7 @@
 # 隐私说明
 
+[English](privacy_EN.md) | 中文
+
 Share Bridge 只作为分享能力封装层。
 
 - 本库自身不采集个人信息。

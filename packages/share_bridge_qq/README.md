@@ -1,5 +1,7 @@
 # share_bridge_qq
 
+[English](README_EN.md) | 中文
+
 Share Bridge 的 QQ 与 QQ 空间分享能力包。
 
 当前状态：

@@ -1,5 +1,7 @@
 # 发布检查清单
 
+[English](release_EN.md) | 中文
+
 当前开发阶段优先使用本地 `path` 依赖，保证 monorepo 内联调简单直接。
 
 ## 当前 dry-run 结果

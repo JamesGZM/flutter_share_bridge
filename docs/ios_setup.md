@@ -1,5 +1,7 @@
 # iOS 接入说明
 
+[English](ios_setup_EN.md) | 中文
+
 ## 微信分享
 
 当前 iOS 侧已接入：

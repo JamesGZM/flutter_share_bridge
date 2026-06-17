@@ -1,5 +1,7 @@
 # Flutter Share Bridge
 
+[English](README_EN.md) | 中文
+
 Flutter Share Bridge 是一组模块化的 Flutter 社交分享插件，用于把内容分享到微信、QQ 和 QQ 空间。
 
 这个项目只做分享，不包含登录、支付、OAuth 或用户资料能力。你可以只接入需要的平台包，也可以额外使用 `share_bridge_widgets` 提供的分享面板 UI。

@@ -1,5 +1,7 @@
 # share_bridge_core
 
+[English](README_EN.md) | 中文
+
 Share Bridge 的纯 Dart 核心库。
 
 这个包定义分享客户端、分享渠道、分享内容、统一结果码、Provider 协议和 `ShareManager`。它不依赖 Flutter、不依赖原生平台 SDK，也不包含任何 UI。

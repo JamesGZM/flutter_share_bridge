@@ -1,5 +1,7 @@
 # share_bridge_widgets
 
+[English](README_EN.md) | 中文
+
 Share Bridge 的可选 Flutter UI 组件库。
 
 这个包只依赖 `share_bridge_core`，不依赖微信、QQ 或任何原生 SDK。
