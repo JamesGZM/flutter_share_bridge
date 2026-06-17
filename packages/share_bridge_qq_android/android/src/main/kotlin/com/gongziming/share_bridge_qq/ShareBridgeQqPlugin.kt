@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import com.tencent.connect.share.QQShare
 import com.tencent.connect.share.QzoneShare
 import com.tencent.tauth.IUiListener
@@ -33,6 +35,12 @@ class ShareBridgeQqPlugin :
     private var tencent: Tencent? = null
     private var pendingResult: Result? = null
     private var pendingListener: IUiListener? = null
+    private var pendingRequestId: String? = null
+
+    companion object {
+        private const val CALLBACK_TIMEOUT_MS = 120_000L
+        private val mainHandler = Handler(Looper.getMainLooper())
+    }
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         applicationContext = flutterPluginBinding.applicationContext
@@ -200,9 +208,13 @@ class ShareBridgeQqPlugin :
         }
 
         val channel = call.argument<String>("channel").orEmpty()
+        val requestId = call.argument<String>("requestId").orEmpty().ifBlank {
+            System.currentTimeMillis().toString()
+        }
         val listener = createListener()
         pendingResult = result
         pendingListener = listener
+        pendingRequestId = requestId
 
         try {
             when (channel) {
@@ -222,8 +234,10 @@ class ShareBridgeQqPlugin :
                 }
                 else -> {
                     completePending(resultMap("unsupportedChannel", "不支持的 QQ 渠道：$channel"))
+                    return
                 }
             }
+            scheduleTimeout(requestId)
         } catch (error: Throwable) {
             completePending(resultMap("nativeError", "QQ 分享调用失败：${error.message}"))
         }
@@ -261,7 +275,16 @@ class ShareBridgeQqPlugin :
         val result = pendingResult
         pendingResult = null
         pendingListener = null
+        pendingRequestId = null
         result?.success(value)
+    }
+
+    private fun scheduleTimeout(requestId: String) {
+        mainHandler.postDelayed({
+            if (pendingRequestId == requestId && pendingResult != null) {
+                completePending(resultMap("timeout", "等待 QQ 回调超时。"))
+            }
+        }, CALLBACK_TIMEOUT_MS)
     }
 
     private fun resultMap(

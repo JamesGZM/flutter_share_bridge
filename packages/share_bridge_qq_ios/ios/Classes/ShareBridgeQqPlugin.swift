@@ -197,6 +197,9 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
 
     let requestId = arguments["requestId"] as? String ?? ""
     let channel = arguments["channel"] as? String ?? ""
+    if let universalLink = universalLink, !universalLink.isEmpty {
+      object.universalLink = universalLink
+    }
     let request = SendMessageToQQReq(content: object)
 
     pendingResult = result
@@ -292,12 +295,16 @@ public class ShareBridgeQqPlugin: NSObject, FlutterPlugin, QQApiInterfaceDelegat
     switch code.rawValue {
     case 1, 11:
       return "appNotInstalled"
-    case 2, 12, 10002, 10004:
+    case 2, 10, 12, 10000, 10001, 10002, 10004:
       return "unsupportedContent"
+    case 6:
+      return "configError"
     case 30001:
       return "permissionDenied"
-    case 4, 5, 13, 20, 21, 22, 23, 24:
+    case 3, 4, 5, 9, 13, 19, 20, 21, 22, 23, 24:
       return "invalidArgument"
+    case 14:
+      return "permissionDenied"
     default:
       return "nativeError"
     }

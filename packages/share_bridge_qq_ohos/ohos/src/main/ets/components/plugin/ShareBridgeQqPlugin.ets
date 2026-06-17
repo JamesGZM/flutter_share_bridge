@@ -16,6 +16,8 @@ import {
   ShareResult,
 } from '@tencent/qq-open-sdk';
 
+const CALLBACK_TIMEOUT_MS = 120 * 1000;
+
 export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHandler {
   private static activePlugin: ShareBridgeQqPlugin | null = null;
   private static pendingWant: Want | null = null;
@@ -23,6 +25,8 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
   private channel: MethodChannel | null = null;
   private context: common.Context | null = null;
   private qqApi: IQQOpenApi | null = null;
+  private pendingResult: MethodResult | null = null;
+  private pendingRequestId: string | null = null;
 
   static handleWant(want: Want): boolean {
     if (!ShareBridgeQqPlugin.isQqCallbackWant(want)) {
@@ -58,6 +62,8 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
     this.channel = null;
     this.context = null;
     this.qqApi = null;
+    this.pendingResult = null;
+    this.pendingRequestId = null;
     if (ShareBridgeQqPlugin.activePlugin === this) {
       ShareBridgeQqPlugin.activePlugin = null;
     }
@@ -137,7 +143,12 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
       result.success(this.resultMap('appNotInstalled', 'QQ is not installed.'));
       return;
     }
+    if (this.pendingResult != null) {
+      result.success(this.resultMap('busy', 'A QQ share request is already pending.'));
+      return;
+    }
 
+    const requestId = (call.argument('requestId') as string | null) ?? `${Date.now()}`;
     const type = call.argument('type') as number | null;
     const shareJson = call.argument('shareJson') as Record<string, Object> | null;
     const timestamp = Number(call.argument('timestamp') as string | null);
@@ -160,12 +171,16 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
     shareData.nonce = nonce;
     shareData.shareJsonSign = shareJsonSign;
 
+    this.pendingResult = result;
+    this.pendingRequestId = requestId;
+    this.scheduleTimeout(requestId);
+
     api.share(type, shareData, openId)
       .then((shareResult: ShareResult) => {
-        result.success(this.mapShareResult(shareResult));
+        this.completePending(this.mapShareResult(shareResult));
       })
       .catch((error: Error) => {
-        result.success(this.resultMap('nativeError', error.message));
+        this.completePending(this.resultMap('nativeError', error.message));
       });
   }
 
@@ -185,5 +200,20 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
       'code': code,
       'message': message,
     };
+  }
+
+  private scheduleTimeout(requestId: string): void {
+    setTimeout(() => {
+      if (this.pendingRequestId === requestId && this.pendingResult != null) {
+        this.completePending(this.resultMap('timeout', 'Timed out waiting for QQ callback.'));
+      }
+    }, CALLBACK_TIMEOUT_MS);
+  }
+
+  private completePending(value: Record<string, Object | null>): void {
+    const result = this.pendingResult;
+    this.pendingResult = null;
+    this.pendingRequestId = null;
+    result?.success(value);
   }
 }

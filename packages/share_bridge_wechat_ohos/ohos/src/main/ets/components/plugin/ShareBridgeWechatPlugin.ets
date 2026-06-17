@@ -183,9 +183,14 @@ export default class ShareBridgeWechatPlugin implements FlutterPlugin, MethodCal
     }
 
     const channel = call.argument('channel') as string | null;
+    const scene = this.sceneForChannel(channel);
+    if (scene === null) {
+      result.success(this.resultMap('unsupportedChannel', `Unsupported WeChat channel: ${channel ?? ''}`));
+      return;
+    }
     const requestId = call.argument('requestId') as string | null;
     const req = new wxOpenSdk.SendMessageToWXReq();
-    req.scene = this.sceneForChannel(channel);
+    req.scene = scene;
     req.message = message;
     req.transaction = requestId ?? `${Date.now()}`;
 
@@ -268,11 +273,14 @@ export default class ShareBridgeWechatPlugin implements FlutterPlugin, MethodCal
     result?.success(value);
   }
 
-  private sceneForChannel(channel: string | null): number {
+  private sceneForChannel(channel: string | null): number | null {
+    if (channel === 'wechat.session') {
+      return wxOpenSdk.SendMessageToWXReq.WXSceneSession;
+    }
     if (channel === 'wechat.timeline') {
       return wxOpenSdk.SendMessageToWXReq.WXSceneTimeline;
     }
-    return wxOpenSdk.SendMessageToWXReq.WXSceneSession;
+    return null;
   }
 
   private imageSource(call: MethodCall, key: string): ImageSource | null {
