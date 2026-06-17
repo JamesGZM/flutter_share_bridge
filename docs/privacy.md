@@ -1,12 +1,12 @@
-# 隐私说明
+# Privacy Notice
 
-[English](privacy_EN.md) | 中文
+English | [中文](privacy_CN.md)
 
-Share Bridge 只作为分享能力封装层。
+Share Bridge is only a sharing capability wrapper.
 
-- 本库自身不采集个人信息。
-- 本库不向 Share Bridge 自有服务器上传用户数据。
-- 本库不实现登录、支付、OAuth、用户资料获取等能力。
-- 接入方需要遵守微信、QQ 官方 SDK 的隐私合规要求。
-- 接入方应在用户同意 App 隐私政策后，再初始化相关 Provider。
-- 如果使用图片分享，接入方需要说明本地图片的选择、读取和权限来源。
+- This library does not collect personal information by itself.
+- This library does not upload user data to any Share Bridge-owned server.
+- This library does not implement login, payment, OAuth, or user profile APIs.
+- Integrators must comply with the privacy requirements of the official WeChat and QQ SDKs.
+- Integrators should initialize related providers only after users agree to the app privacy policy.
+- If image sharing is used, integrators should explain how local images are selected, read, and permissioned.

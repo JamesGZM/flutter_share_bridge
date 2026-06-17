@@ -1,45 +1,45 @@
-# iOS 接入说明
+# iOS Integration
 
-[English](ios_setup_EN.md) | 中文
+English | [中文](ios_setup_CN.md)
 
-## 微信分享
+## WeChat Sharing
 
-当前 iOS 侧已接入：
+The iOS implementation integrates:
 
 ```ruby
 pod 'WechatOpenSDK-XCFramework', '2.0.5'
 ```
 
-插件支持：
+Supported:
 
-- `wechat.session` 网页分享。
-- `wechat.timeline` 网页分享。
-- `wechat.session` 图片分享。
-- `wechat.timeline` 图片分享。
-- URL Scheme 回调。
-- Universal Link 回调。
+- `wechat.session` webpage sharing.
+- `wechat.timeline` webpage sharing.
+- `wechat.session` image sharing.
+- `wechat.timeline` image sharing.
+- URL Scheme callbacks.
+- Universal Link callbacks.
 
-暂未处理：
+Not handled yet:
 
-- 小程序分享。
-- 音乐、视频、文件分享。
-- 更复杂的缩略图策略。
+- Mini Program sharing.
+- Music, video, file, and other extended content types.
+- Advanced thumbnail strategies.
 
-## 宿主 App 配置
+## Host App Configuration
 
-### 1. 微信开放平台配置
+### 1. WeChat Open Platform
 
-需要在微信开放平台配置：
+Configure these values in the WeChat Open Platform:
 
-- Bundle ID。
-- 微信 AppID。
-- Universal Link。
+- Bundle ID.
+- WeChat AppID.
+- Universal Link.
 
-Universal Link 必须和 Apple Associated Domains 以及服务器上的 `apple-app-site-association` 文件一致。
+The Universal Link must match Apple Associated Domains and the `apple-app-site-association` file on your server.
 
 ### 2. URL Scheme
 
-宿主 App 的 `Info.plist` 需要添加 URL Scheme，通常为微信 AppID：
+The host app `Info.plist` needs a URL Scheme, usually the WeChat AppID:
 
 ```xml
 <key>CFBundleURLTypes</key>
@@ -51,7 +51,7 @@ Universal Link 必须和 Apple Associated Domains 以及服务器上的 `apple-a
     <string>weixin</string>
     <key>CFBundleURLSchemes</key>
     <array>
-      <string>你的微信AppID</string>
+      <string>your_wechat_app_id</string>
     </array>
   </dict>
 </array>
@@ -59,7 +59,7 @@ Universal Link 必须和 Apple Associated Domains 以及服务器上的 `apple-a
 
 ### 3. LSApplicationQueriesSchemes
 
-宿主 App 的 `Info.plist` 至少需要：
+The host app `Info.plist` needs at least:
 
 ```xml
 <key>LSApplicationQueriesSchemes</key>
@@ -73,19 +73,19 @@ Universal Link 必须和 Apple Associated Domains 以及服务器上的 `apple-a
 
 ### 4. Associated Domains
 
-在 Xcode 的 Signing & Capabilities 中启用 Associated Domains，并添加：
+Enable Associated Domains in Xcode Signing & Capabilities and add:
 
 ```text
-applinks:你的域名
+applinks:your.domain
 ```
 
-服务器需要提供合法的 `apple-app-site-association` 文件。修改后建议删除 App 重新安装，避免 iOS 使用旧缓存。
+The server must provide a valid `apple-app-site-association` file. After changes, reinstall the app to avoid stale iOS cache.
 
-### 5. AppDelegate / SceneDelegate 回调
+### 5. AppDelegate / SceneDelegate Callbacks
 
-插件会通过 FlutterPlugin 的 application delegate 接收 AppDelegate 回调。
+The plugin receives AppDelegate callbacks through FlutterPlugin application delegate hooks.
 
-如果宿主工程使用 SceneDelegate，还需要转发：
+If the host app uses SceneDelegate, forward callbacks:
 
 ```swift
 import share_bridge_wechat_ios
@@ -107,56 +107,54 @@ override func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
 }
 ```
 
-## 本地调试命令
+## Local Debugging
 
-示例工程支持通过 dart-define 传入微信 AppID：
+The example supports passing the WeChat AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_wechat/example
-flutter run --dart-define=WECHAT_APP_ID=你的微信AppID
+flutter run --dart-define=WECHAT_APP_ID=your_wechat_app_id
 ```
 
-注意：dart-define 只传给 Dart 层。iOS 的 URL Scheme、Associated Domains、Universal Link 仍需要在 Xcode 工程和微信开放平台中配置。
+`dart-define` is only passed to Dart. iOS URL Scheme, Associated Domains, Universal Link, and Open Platform settings must still be configured in Xcode and the WeChat Open Platform.
 
-原因：Flutter 插件依赖可以带入 SDK 和插件代码，但 URL Scheme、Associated Domains、Bundle ID、开放平台配置都属于宿主 App 配置，插件 example 只能提供模板。
+## QQ Sharing
 
-## QQ 分享
-
-当前 iOS 侧已接入你本地下载的 QQ 官方 Lite XCFramework：
+The iOS implementation integrates the official QQ Lite XCFramework downloaded locally:
 
 ```text
 packages/share_bridge_qq_ios/ios/Frameworks/TencentOpenAPI.xcframework
 ```
 
-QQ 互联官方 iOS SDK 包里的 module map 位于非标准目录，插件内已补充到每个 framework slice 的 `Modules/module.modulemap`，并改为标准 `framework module TencentOpenApi` 声明，确保 Swift 可以 `import TencentOpenApi`。
+The module map in the official QQ Connect iOS SDK package is located in a non-standard directory. This plugin adds `Modules/module.modulemap` to every framework slice and uses a standard `framework module TencentOpenApi` declaration so Swift can `import TencentOpenApi`.
 
-插件支持：
+Supported:
 
-- `qq.friend` 网页分享。
-- `qq.friend` 图片分享。
-- `qq.qzone` 网页分享。
-- URL Scheme 回调。
-- Universal Link 回调。
+- `qq.friend` webpage sharing.
+- `qq.friend` image sharing.
+- `qq.qzone` webpage sharing.
+- URL Scheme callbacks.
+- Universal Link callbacks.
 
-暂未处理：
+Not handled yet:
 
-- QQ 空间纯图片分享。
-- 登录、OAuth、用户资料。
-- QQ 小程序、音乐、视频、文件等扩展类型。
+- Pure image sharing to QZone.
+- Login, OAuth, and user profile APIs.
+- QQ Mini Program, music, video, file, and other extended content types.
 
-### 1. QQ 互联配置
+### 1. QQ Connect Configuration
 
-需要在 QQ 互联开放平台配置：
+Configure these values in QQ Connect:
 
-- Bundle ID。
-- QQ AppID。
-- Universal Link。
+- Bundle ID.
+- QQ AppID.
+- Universal Link.
 
-Universal Link 必须和 Apple Associated Domains 以及服务器上的 `apple-app-site-association` 文件一致。
+The Universal Link must match Apple Associated Domains and the `apple-app-site-association` file on your server.
 
 ### 2. URL Scheme
 
-宿主 App 的 `Info.plist` 需要添加 URL Scheme，格式为 `tencent` + QQ AppID：
+The host app `Info.plist` needs a URL Scheme in the format `tencent` + QQ AppID:
 
 ```xml
 <key>CFBundleURLTypes</key>
@@ -168,17 +166,17 @@ Universal Link 必须和 Apple Associated Domains 以及服务器上的 `apple-a
     <string>qq</string>
     <key>CFBundleURLSchemes</key>
     <array>
-      <string>tencent你的QQAppID</string>
+      <string>tencentyour_qq_app_id</string>
     </array>
   </dict>
 </array>
 ```
 
-例如 AppID 是 `222222`，则写 `tencent222222`。
+For example, AppID `222222` becomes `tencent222222`.
 
 ### 3. LSApplicationQueriesSchemes
 
-宿主 App 的 `Info.plist` 至少需要：
+The host app `Info.plist` needs at least:
 
 ```xml
 <key>LSApplicationQueriesSchemes</key>
@@ -202,19 +200,19 @@ Universal Link 必须和 Apple Associated Domains 以及服务器上的 `apple-a
 
 ### 4. Associated Domains
 
-如启用 Universal Link，在 Xcode 的 Signing & Capabilities 中启用 Associated Domains，并添加：
+If Universal Link is enabled, enable Associated Domains in Xcode Signing & Capabilities and add:
 
 ```text
-applinks:你的域名
+applinks:your.domain
 ```
 
-服务器需要提供合法的 `apple-app-site-association` 文件。修改后建议删除 App 重新安装，避免 iOS 使用旧缓存。
+The server must provide a valid `apple-app-site-association` file. After changes, reinstall the app to avoid stale iOS cache.
 
-### 5. AppDelegate / SceneDelegate 回调
+### 5. AppDelegate / SceneDelegate Callbacks
 
-插件会通过 FlutterPlugin 的 application delegate 接收 AppDelegate 回调。
+The plugin receives AppDelegate callbacks through FlutterPlugin application delegate hooks.
 
-如果宿主工程使用 SceneDelegate，还需要转发：
+If the host app uses SceneDelegate, forward callbacks:
 
 ```swift
 import share_bridge_qq_ios
@@ -236,31 +234,31 @@ override func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
 }
 ```
 
-## QQ 本地调试命令
+## QQ Local Debugging
 
-示例工程支持通过 dart-define 传入 QQ AppID：
+The example supports passing the QQ AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_qq/example
-flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
+flutter run --dart-define=QQ_APP_ID=your_qq_app_id
 ```
 
-注意：dart-define 只传给 Dart 层。iOS 的 URL Scheme、Associated Domains、Universal Link 仍需要在 Xcode 工程和 QQ 互联开放平台中配置。示例工程的 `tencentyour_qq_app_id` 是占位值，真机调试前必须替换。
+`dart-define` is only passed to Dart. iOS URL Scheme, Associated Domains, Universal Link, and QQ Connect settings must still be configured in Xcode and QQ Connect. The example's `tencentyour_qq_app_id` is a placeholder and must be replaced before real-device debugging.
 
-## 聚合示例
+## Aggregated Example
 
-仓库根目录的 `example/` 是真实宿主视角的聚合示例，同时依赖：
+The root `example/` is an app-level integration example that depends on:
 
 - `share_bridge_core`
 - `share_bridge_widgets`
 - `share_bridge_wechat`
 - `share_bridge_qq`
 
-iOS 侧已经放入微信和 QQ 的 URL Scheme、`LSApplicationQueriesSchemes`、SceneDelegate 回调转发模板。真机调试前仍必须替换占位 AppID、配置 Associated Domains 和开放平台 Bundle ID。
+The iOS side includes URL Scheme placeholders, `LSApplicationQueriesSchemes`, and SceneDelegate forwarding templates for WeChat and QQ. Before real-device debugging, replace placeholder AppIDs and configure Associated Domains and Open Platform Bundle IDs.
 
 ```sh
 cd example
 flutter run \
-  --dart-define=WECHAT_APP_ID=你的微信AppID \
-  --dart-define=QQ_APP_ID=你的QQ互联AppID
+  --dart-define=WECHAT_APP_ID=your_wechat_app_id \
+  --dart-define=QQ_APP_ID=your_qq_app_id
 ```

@@ -90,7 +90,7 @@ Tencent.createInstance(appId, context, "${applicationId}.fileprovider")
 
 宿主 App 不需要再单独添加 QQ SDK 依赖，但仍需要按 QQ 互联 Android SDK 文档配置 `AuthActivity`、`AssistActivity` 和 `tencent{AppID}` scheme。
 
-涉及本地图片、缩略图分享时，宿主 App 还需要按 QQ 官方“分享功能存储权限适配”配置 FileProvider，并让 authorities 与 `${applicationId}.fileprovider` 一致。完整配置见仓库根目录的 `docs/android_setup.md`。
+涉及本地图片、缩略图分享时，宿主 App 还需要按 QQ 官方“分享功能存储权限适配”配置 FileProvider，并让 authorities 与 `${applicationId}.fileprovider` 一致。完整配置见仓库根目录的 `docs/android_setup_CN.md`。
 
 参考资料：
 
@@ -122,4 +122,4 @@ QQ 互联 iOS SDK 当前使用你本地下载的官方 Lite XCFramework：
 - SceneDelegate / AppDelegate 回调转发。
 - 如启用 Universal Link，还需要配置 Associated Domains。
 
-完整配置见仓库根目录的 `docs/ios_setup.md`。
+完整配置见仓库根目录的 `docs/ios_setup_CN.md`。

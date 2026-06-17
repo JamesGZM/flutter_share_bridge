@@ -1,18 +1,18 @@
-# HarmonyOS 接入说明
+# HarmonyOS Integration
 
-[English](harmonyos_setup_EN.md) | 中文
+English | [中文](harmonyos_setup_CN.md)
 
-当前已开始接入 QQ 与微信 HarmonyOS 分享，均采用独立 federated 子包结构。
+QQ and WeChat HarmonyOS sharing support has started. Both use standalone federated platform packages.
 
-Dart API 尽量保持与 Android、iOS Provider 一致。当前平台或内容类型不支持时，必须返回明确的 `ShareResultCode`，不能静默失败。
+The Dart API should stay as consistent as possible with the Android and iOS providers. If the current platform or content type is unsupported, the implementation must return an explicit `ShareResultCode` instead of failing silently.
 
 ## QQ HarmonyOS
 
-QQ HarmonyOS 使用独立实现包 `share_bridge_qq_ohos`。普通宿主 App 只需要依赖 `share_bridge_qq`，HarmonyOS 平台由 `default_package` 自动带入。
+QQ HarmonyOS uses the standalone implementation package `share_bridge_qq_ohos`. Host apps normally depend on `share_bridge_qq`; the HarmonyOS implementation is pulled in by `default_package`.
 
-### SDK 依赖
+### SDK Dependency
 
-插件的 HarmonyOS 模块通过 `oh-package.json5` 依赖 QQ 互联 SDK：
+The HarmonyOS module depends on QQ Connect SDK in `oh-package.json5`:
 
 ```json5
 "dependencies": {
@@ -20,18 +20,18 @@ QQ HarmonyOS 使用独立实现包 `share_bridge_qq_ohos`。普通宿主 App 只
 }
 ```
 
-宿主工程仍需要按 QQ 互联 HarmonyOS 文档配置 `module.json5`，包括：
+Host apps still need to configure `module.json5` according to QQ Connect HarmonyOS documentation:
 
-- `querySchemes`: `https`、`qqopenapi`
-- Ability `skills` 中的 `qqopenapi` 回调 scheme
-- `host` 填 QQ 互联 AppID
-- `pathRegex` 包含 `auth|share`
+- `querySchemes`: `https`, `qqopenapi`
+- Ability `skills` for the `qqopenapi` callback scheme
+- `host` set to the QQ Connect AppID
+- `pathRegex` including `auth|share`
 
-QQ SDK 的 HAR 包采用字节码编译，宿主工程还需要按 QQ 互联文档开启 `useNormalizedOHMUrl`。
+The QQ SDK HAR is bytecode-compiled, so host projects also need to enable `useNormalizedOHMUrl` according to QQ Connect documentation.
 
-### 签名回调
+### Signing Callback
 
-QQ HarmonyOS 分享需要对 `shareJson + timestamp + nonce` 进行签名。AppKey 不能放在客户端，因此插件不计算签名，而是通过 `QqShareProvider` 的可选 `qqHarmonySigner` 交给业务后台完成。
+QQ HarmonyOS sharing requires signing `shareJson + timestamp + nonce`. The AppKey must not be stored in the client, so the plugin does not compute signatures. Instead, it uses the optional `qqHarmonySigner` callback on `QqShareProvider`.
 
 ```dart
 final provider = QqShareProvider(
@@ -53,22 +53,22 @@ final provider = QqShareProvider(
 );
 ```
 
-`qqHarmonySigner` 只在 QQ HarmonyOS 实现中使用。Android / iOS 会忽略它，继续走现有原生 SDK 分享流程。
+`qqHarmonySigner` is used only by QQ HarmonyOS. Android and iOS ignore it and continue using their current native SDK flows.
 
-当前能力映射：
+Current capability mapping:
 
-- `qq.friend` + 网页：ARK 图文分享，type `2`
-- `qq.friend` + 图片：大图分享，type `2`
-- `qq.qzone` + 网页：空间分享，type `3009`
-- `qq.qzone` + 图片：暂返回 `unsupportedContent`
+- `qq.friend` + webpage: ARK rich content, type `2`
+- `qq.friend` + image: large image, type `2`
+- `qq.qzone` + webpage: QZone sharing, type `3009`
+- `qq.qzone` + image: currently returns `unsupportedContent`
 
-## 微信 HarmonyOS
+## WeChat HarmonyOS
 
-微信 HarmonyOS 使用独立实现包 `share_bridge_wechat_ohos`。普通宿主 App 只需要依赖 `share_bridge_wechat`，HarmonyOS 平台由 `default_package` 自动带入。
+WeChat HarmonyOS uses the standalone implementation package `share_bridge_wechat_ohos`. Host apps normally depend on `share_bridge_wechat`; the HarmonyOS implementation is pulled in by `default_package`.
 
-### SDK 依赖
+### SDK Dependency
 
-插件的 HarmonyOS 模块通过 `oh-package.json5` 依赖微信 OpenSDK：
+The HarmonyOS module depends on WeChat OpenSDK in `oh-package.json5`:
 
 ```json5
 "dependencies": {
@@ -76,11 +76,11 @@ final provider = QqShareProvider(
 }
 ```
 
-宿主工程仍需要按微信开放平台 HarmonyOS 文档配置应用信息和查询 scheme。示例 App 的 entry 模块声明了：
+Host apps still need to configure app information and query schemes according to the WeChat Open Platform HarmonyOS documentation. The example app entry module declares:
 
-- `querySchemes`: `weixin`、`wxopensdk`
+- `querySchemes`: `weixin`, `wxopensdk`
 
-宿主 `EntryAbility` 还需要在冷启动和热启动时把微信回调 `want` 交给插件处理，否则只能发起分享，拿不到微信返回的成功 / 取消 / 错误结果：
+The host `EntryAbility` must also forward WeChat callback `want` objects during cold and warm starts. Otherwise sharing can be launched, but the plugin cannot receive the final success / cancel / error response from WeChat:
 
 ```ts
 import Want from '@ohos.app.ability.Want';
@@ -98,11 +98,11 @@ onNewWant(want: Want, launchParams: AbilityConstant.LaunchParam): void {
 }
 ```
 
-### 分享映射
+### Share Mapping
 
-微信 HarmonyOS 不需要 QQ HarmonyOS 这种后台签名 callback。插件直接从普通 `ShareContent.webpage/image` 构造微信 OpenSDK 请求：
+WeChat HarmonyOS does not need a QQ-style backend signing callback. The plugin constructs WeChat OpenSDK requests directly from normal `ShareContent.webpage/image`:
 
-- `wechat.session` + 网页：`WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
-- `wechat.timeline` + 网页：`WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`
-- `wechat.session` + 图片：`WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
-- `wechat.timeline` + 图片：`WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`
+- `wechat.session` + webpage: `WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
+- `wechat.timeline` + webpage: `WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`
+- `wechat.session` + image: `WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
+- `wechat.timeline` + image: `WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`

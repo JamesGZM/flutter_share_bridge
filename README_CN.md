@@ -52,10 +52,10 @@ share_bridge_qq_ohos
 
 ```yaml
 dependencies:
-  share_bridge_core: ^0.1.0-dev.2
-  share_bridge_wechat: ^0.1.0-dev.2
-  share_bridge_qq: ^0.1.0-dev.2
-  share_bridge_widgets: ^0.1.0-dev.2
+  share_bridge_core: ^0.1.0-dev.3
+  share_bridge_wechat: ^0.1.0-dev.3
+  share_bridge_qq: ^0.1.0-dev.3
+  share_bridge_widgets: ^0.1.0-dev.3
 ```
 
 ## 快速开始
@@ -167,10 +167,11 @@ HarmonyOS：
 
 详细说明：
 
-- [Android 配置](docs/android_setup.md)
-- [iOS 配置](docs/ios_setup.md)
-- [HarmonyOS 配置](docs/harmonyos_setup.md)
-- [隐私说明](docs/privacy.md)
+- [Android 配置](docs/android_setup_CN.md)
+- [iOS 配置](docs/ios_setup_CN.md)
+- [HarmonyOS 配置](docs/harmonyos_setup_CN.md)
+- [隐私说明](docs/privacy_CN.md)
+- [架构设计](docs/design_CN.md)
 
 ## 本地示例
 
@@ -251,6 +252,8 @@ cd example && flutter build ios --debug --no-codesign
 - [share_bridge_wechat](https://pub.dev/packages/share_bridge_wechat)
 - [share_bridge_qq](https://pub.dev/packages/share_bridge_qq)
 - [share_bridge_widgets](https://pub.dev/packages/share_bridge_widgets)
+
+当前已发布版本为 `0.1.0-dev.3`。每次发布后，pub.dev 的分数分析可能需要等待几分钟才会刷新。
 
 ## 设计原则
 

@@ -1,6 +1,7 @@
 # share_bridge_qq_ios
 
-iOS implementation package for `share_bridge_qq`.
+[English](README.md) | 中文
 
-Applications usually do not depend on this package directly. Depend on `share_bridge_qq`; Flutter will load this endorsed iOS implementation package automatically.
+`share_bridge_qq` 的 iOS 平台实现包。
 
+业务 App 通常不需要直接依赖本包。依赖 `share_bridge_qq` 后，Flutter 会通过 endorsed federated plugin 机制自动加载这个 iOS 实现包。

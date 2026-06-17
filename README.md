@@ -52,10 +52,10 @@ Packages are published on pub.dev. Host apps can depend on the packages they nee
 
 ```yaml
 dependencies:
-  share_bridge_core: ^0.1.0-dev.2
-  share_bridge_wechat: ^0.1.0-dev.2
-  share_bridge_qq: ^0.1.0-dev.2
-  share_bridge_widgets: ^0.1.0-dev.2
+  share_bridge_core: ^0.1.0-dev.3
+  share_bridge_wechat: ^0.1.0-dev.3
+  share_bridge_qq: ^0.1.0-dev.3
+  share_bridge_widgets: ^0.1.0-dev.3
 ```
 
 ## Quick Start
@@ -169,8 +169,9 @@ See:
 
 - [Android setup](docs/android_setup.md)
 - [iOS setup](docs/ios_setup.md)
-- [HarmonyOS setup](docs/harmonyos_setup_EN.md)
+- [HarmonyOS setup](docs/harmonyos_setup.md)
 - [Privacy notes](docs/privacy.md)
+- [Architecture design](docs/design.md)
 
 ## Local Example
 
@@ -252,12 +253,8 @@ cd example && flutter build ios --debug --no-codesign
 - [share_bridge_qq](https://pub.dev/packages/share_bridge_qq)
 - [share_bridge_widgets](https://pub.dev/packages/share_bridge_widgets)
 
-Before publishing:
-
-- Verify Android / iOS callbacks on real devices
-- Run pub.dev dry-run checks
-- Switch internal package dependencies to hosted versions
-- Complete platform setup and troubleshooting docs
+Published packages use `0.1.0-dev.3`. The package pages may take a few minutes
+to refresh score analysis after each publish.
 
 ## Design Principle
 

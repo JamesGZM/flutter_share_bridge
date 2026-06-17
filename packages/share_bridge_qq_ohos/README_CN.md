@@ -17,4 +17,4 @@ HarmonyOS 工程仍需要完成：
 - `build-profile.json5` 开启 `strictMode.useNormalizedOHMUrl`。
 - DevEco Studio 中配置本机调试签名；签名、证书、keystore、`local.properties` 不提交。
 
-完整说明见仓库根目录 [HarmonyOS 接入说明](../../docs/harmonyos_setup.md)。
+完整说明见仓库根目录 [HarmonyOS 接入说明](../../docs/harmonyos_setup_CN.md)。

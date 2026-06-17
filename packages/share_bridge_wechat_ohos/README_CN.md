@@ -1,5 +1,7 @@
 # share_bridge_wechat_ohos
 
+[English](README.md) | 中文
+
 `share_bridge_wechat` 的 HarmonyOS 平台实现包。
 
 通常无需直接依赖本包；业务侧依赖 `share_bridge_wechat` 即可通过 endorsed federated plugin 自动接入。
@@ -23,4 +25,4 @@ HarmonyOS 工程仍需要完成：
 - `EntryAbility.onCreate/onNewWant` 调用 `ShareBridgeWechatPlugin.handleWant(want)`，用于接收微信分享成功、取消或错误回调。
 - DevEco Studio 中配置本机调试签名；签名、证书、keystore、`local.properties` 不提交。
 
-完整说明见仓库根目录 [HarmonyOS 接入说明](../../docs/harmonyos_setup.md)。
+完整说明见仓库根目录 [HarmonyOS 接入说明](../../docs/harmonyos_setup_CN.md)。

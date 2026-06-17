@@ -1,46 +1,46 @@
-# Android 接入说明
+# Android Integration
 
-[English](android_setup_EN.md) | 中文
+English | [中文](android_setup_CN.md)
 
-## 微信分享
+## WeChat Sharing
 
-当前 Android 侧已接入微信 OpenSDK：
+The Android implementation integrates WeChat OpenSDK:
 
 ```kotlin
 implementation("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
 ```
 
-插件支持：
+Supported:
 
-- `wechat.session` 网页分享。
-- `wechat.timeline` 网页分享。
-- `wechat.session` 图片分享。
-- `wechat.timeline` 图片分享。
-- `WXEntryActivity` 回调结果映射。
+- `wechat.session` webpage sharing.
+- `wechat.timeline` webpage sharing.
+- `wechat.session` image sharing.
+- `wechat.timeline` image sharing.
+- `WXEntryActivity` callback result mapping.
 
-暂未处理：
+Not handled yet:
 
-- 小程序分享。
-- 音乐、视频、文件分享。
-- 复杂缩略图策略。
+- Mini Program sharing.
+- Music, video, file, and other extended content types.
+- Advanced thumbnail strategies.
 
-## 宿主 App 配置
+## Host App Configuration
 
-### 1. 微信开放平台配置
+### 1. WeChat Open Platform
 
-需要在微信开放平台配置：
+Configure these values in the WeChat Open Platform:
 
-- Android 包名。
-- Android 应用签名。
-- 微信 AppID。
+- Android package name.
+- Android app signature.
+- WeChat AppID.
 
-调试时要确保运行包名和签名与开放平台配置一致，否则微信可能返回失败。
+During debugging, the runtime package name, signature, and AppID must match the Open Platform configuration.
 
 ### 2. WXEntryActivity
 
-微信要求回调 Activity 位于宿主 App 包名下的 `wxapi.WXEntryActivity`。
+WeChat requires the callback Activity to be placed at `wxapi.WXEntryActivity` under the host app package.
 
-宿主 App 新建：
+Create this class in the host app:
 
 ```kotlin
 package your.application.id.wxapi
@@ -50,7 +50,7 @@ import com.gongziming.share_bridge_wechat.ShareBridgeWechatEntryActivity
 class WXEntryActivity : ShareBridgeWechatEntryActivity()
 ```
 
-并在宿主 App 的 `AndroidManifest.xml` 中声明：
+Declare it in the host app `AndroidManifest.xml`:
 
 ```xml
 <activity
@@ -60,9 +60,9 @@ class WXEntryActivity : ShareBridgeWechatEntryActivity()
     android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 ```
 
-### 3. 包可见性
+### 3. Package Visibility
 
-插件 AAR 已声明：
+The plugin AAR declares:
 
 ```xml
 <queries>
@@ -70,72 +70,72 @@ class WXEntryActivity : ShareBridgeWechatEntryActivity()
 </queries>
 ```
 
-如果宿主工程有特殊 manifest 合并规则，需要确认该声明没有被移除。
+If the host project has custom manifest merge rules, confirm this declaration is not removed.
 
-## 本地调试命令
+## Local Debugging
 
-示例工程支持通过 dart-define 传入微信 AppID：
+The example supports passing the WeChat AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_wechat/example
-flutter run --dart-define=WECHAT_APP_ID=你的微信AppID
+flutter run --dart-define=WECHAT_APP_ID=your_wechat_app_id
 ```
 
-真机调试前请先确认：
+Before testing on a real device, confirm:
 
-- 手机已安装微信。
-- 包名、签名、AppID 与微信开放平台一致。
-- `WXEntryActivity` 已在最终 APK Manifest 中存在。
+- WeChat is installed.
+- Package name, signature, and AppID match the WeChat Open Platform configuration.
+- `WXEntryActivity` exists in the final APK manifest.
 
-## QQ 分享
+## QQ Sharing
 
-当前 Android 侧已完成 QQ SDK 调用适配，插件已接入你本地下载的 QQ 官方 Lite Jar：
+The Android implementation adapts the QQ SDK calls and uses the official QQ Lite Jar downloaded locally:
 
 ```text
 packages/share_bridge_qq_android/android/libs/open_sdk_3.5.19_r9483ffc7_lite.jar
 ```
 
-QQ 互联官方 Android 文档仍以下载 Android SDK/Jar 的方式说明接入，因此当前不使用不可确认的第三方 Maven 坐标。插件直接编译依赖本地 Jar，并调用：
+The official QQ Connect Android documentation still describes SDK/Jar download based integration, so this project does not rely on an unverified third-party Maven coordinate. The plugin compiles against the local Jar and calls:
 
 - `Tencent.createInstance(appId, context, authorities)`
 - `Tencent.shareToQQ(activity, bundle, listener)`
 - `Tencent.shareToQzone(activity, bundle, listener)`
 - `Tencent.onActivityResultData(requestCode, resultCode, data, listener)`
 
-插件支持：
+Supported:
 
-- `qq.friend` 网页分享。
-- `qq.friend` 图片分享。
-- `qq.qzone` 网页分享。
+- `qq.friend` webpage sharing.
+- `qq.friend` image sharing.
+- `qq.qzone` webpage sharing.
 
-暂未处理：
+Not handled yet:
 
-- QQ 空间纯图片分享。
-- 登录、OAuth、用户资料。
-- QQ 小程序、音乐、视频、文件等扩展类型。
+- Pure image sharing to QZone.
+- Login, OAuth, and user profile APIs.
+- QQ Mini Program, music, video, file, and other extended content types.
 
-### 1. 接入 QQ 官方 Android SDK
+### 1. QQ Android SDK
 
-插件已经接入 QQ 官方 Android Lite Jar，宿主 App 不需要再额外添加 QQ SDK 依赖。
+The plugin already integrates the official QQ Android Lite Jar. Host apps do not need to add another QQ SDK dependency.
 
-当前 Jar 来自本地 `sdks/143310b667ece8922594fbe866dabdef.zip`：
+The current Jar comes from local `sdks/143310b667ece8922594fbe866dabdef.zip`:
 
 ```text
 open_sdk_3.5.19_r9483ffc7_lite.jar
 ```
 
-如果后续升级 QQ SDK，需要替换 `packages/share_bridge_qq_android/android/libs/` 下的 Jar，并重新跑 Android 示例编译。
+To upgrade the QQ SDK later, replace the Jar under `packages/share_bridge_qq_android/android/libs/` and rebuild the Android example.
 
-### 2. 宿主 Manifest 配置
+### 2. Host Manifest
 
-插件 Manifest 已声明 SDK 所需网络权限：
+The plugin manifest already declares the SDK network permissions:
 
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-宿主 App 仍需要在 `application` 内配置 QQ 回调 Activity：
+The host app still needs QQ callback activities inside `application`:
 
 ```xml
 <activity
@@ -147,7 +147,7 @@ open_sdk_3.5.19_r9483ffc7_lite.jar
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="tencent你的QQAppID" />
+        <data android:scheme="tencentyour_qq_app_id" />
     </intent-filter>
 </activity>
 
@@ -159,35 +159,35 @@ open_sdk_3.5.19_r9483ffc7_lite.jar
     android:exported="false" />
 ```
 
-`android:scheme` 必须替换成 `tencent` + QQ AppID，例如 AppID 是 `222222`，则写 `tencent222222`。
+Replace `android:scheme` with `tencent` + QQ AppID. For example, AppID `222222` becomes `tencent222222`.
 
-原因：Flutter 插件依赖可以通过 manifest merge 带入插件自身声明的权限、包可见性等通用配置，但 QQ / 微信开放平台要求的回调 Activity、URL Scheme、包名、签名和 FileProvider authorities 都属于宿主 App 配置。插件 example 只能给出模板，不能替每个宿主 App 自动生成真实 AppID 和签名配置。
+Flutter plugin dependencies can merge plugin permissions and package visibility declarations, but QQ / WeChat callback activities, URL schemes, package names, signatures, and FileProvider authorities belong to each host app. The examples can provide templates only.
 
-### 3. QQ 互联配置
+### 3. QQ Connect Configuration
 
-需要在 QQ 互联开放平台配置：
+Configure these values in QQ Connect:
 
-- Android 包名。
-- Android 应用签名。
-- QQ AppID。
+- Android package name.
+- Android app signature.
+- QQ AppID.
 
-调试时要确保运行包名、签名和 AppID 与开放平台配置一致。
+During debugging, package name, signature, and AppID must match the Open Platform configuration.
 
 ### 4. FileProvider
 
-QQ 官方“分享功能存储权限适配”说明：Android Q 以后，分享图片路径需要具备可读权限；使用 FileProvider 时应通过三参数 `createInstance` 创建 Tencent 实例，authorities 默认格式为 `${applicationId}.fileprovider`。
+QQ's storage permission adaptation notes require readable paths for image sharing on Android Q and later. When using FileProvider, create the Tencent instance with the three-argument `createInstance`; the default authorities format is `${applicationId}.fileprovider`.
 
-插件使用的 authorities 固定为：
+The plugin uses this authorities value:
 
 ```text
 ${applicationId}.fileprovider
 ```
 
-宿主 App 如果要分享本地图片或本地缩略图，需要在 `AndroidManifest.xml` 中配置同名 FileProvider，并提供可访问的文件路径规则。
+If the host app shares local images or thumbnails, configure a FileProvider with the same authorities and accessible file path rules in `AndroidManifest.xml`.
 
-### 5. 包可见性
+### 5. Package Visibility
 
-插件 AAR 已声明：
+The plugin AAR declares:
 
 ```xml
 <queries>
@@ -196,59 +196,27 @@ ${applicationId}.fileprovider
 </queries>
 ```
 
-如果宿主工程有特殊 manifest 合并规则，需要确认该声明没有被移除。
+If the host project has custom manifest merge rules, confirm this declaration is not removed.
 
-## QQ 本地调试命令
+## QQ Local Debugging
 
-示例工程支持通过 dart-define 传入 QQ AppID：
+The example supports passing the QQ AppID with `dart-define`:
 
 ```sh
 cd packages/share_bridge_qq/example
-flutter run --dart-define=QQ_APP_ID=你的QQ互联AppID
+flutter run --dart-define=QQ_APP_ID=your_qq_app_id
 ```
 
-示例工程已经内置 QQ SDK 所需的 `AuthActivity`、`AssistActivity` 和 FileProvider 模板。真机调试前需要把：
+The example includes templates for `AuthActivity`, `AssistActivity`, and FileProvider. Before real-device debugging, replace:
 
 ```xml
 <data android:scheme="tencentyour_qq_app_id" />
 ```
 
-替换为 `tencent` + 你的 QQ AppID，例如：
+with `tencent` + your QQ AppID, for example:
 
 ```xml
 <data android:scheme="tencent222222" />
 ```
 
-`--dart-define=QQ_APP_ID=...` 只会传给 Dart 层，不会自动改 Android Manifest。
-
-真机调试前请先确认：
-
-- 手机已安装 QQ。
-- 插件已接入 QQ 官方 Android Lite Jar。
-- 包名、签名、AppID 与 QQ 互联开放平台一致。
-- 如果测试图片分享，FileProvider authorities 与 `${applicationId}.fileprovider` 一致。
-
-## 聚合示例
-
-仓库根目录的 `example/` 是真实宿主视角的聚合示例，同时依赖：
-
-- `share_bridge_core`
-- `share_bridge_widgets`
-- `share_bridge_wechat`
-- `share_bridge_qq`
-
-Android 侧已经放入微信 `WXEntryActivity`、QQ `AuthActivity` / `AssistActivity`、QQ FileProvider 模板。真机调试前仍必须替换占位 AppID、配置开放平台包名和签名。
-
-```sh
-cd example
-flutter run \
-  --dart-define=WECHAT_APP_ID=你的微信AppID \
-  --dart-define=QQ_APP_ID=你的QQ互联AppID
-```
-
-## QQ 参考资料
-
-- [QQ 互联：Android_SDK 使用说明](https://wiki.connect.qq.com/android_sdk%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E)
-- [QQ 互联：分享消息到 QQ（无需 QQ 登录）](https://wiki.connect.qq.com/%E5%88%86%E4%BA%AB%E6%B6%88%E6%81%AF%E5%88%B0qq%EF%BC%88%E6%97%A0%E9%9C%80qq%E7%99%BB%E5%BD%95%EF%BC%89)
-- [QQ 互联：分享到 QQ 空间](https://wiki.connect.qq.com/%E5%88%86%E4%BA%AB%E5%88%B0qq%E7%A9%BA%E9%97%B4)
-- [QQ 互联：分享功能存储权限适配](https://wiki.connect.qq.com/%E5%88%86%E4%BA%AB%E5%8A%9F%E8%83%BD%E5%AD%98%E5%82%A8%E6%9D%83%E9%99%90%E9%80%82%E9%85%8D)
+`--dart-define=QQ_APP_ID=...` is only passed to Dart. It does not modify the Android Manifest.
