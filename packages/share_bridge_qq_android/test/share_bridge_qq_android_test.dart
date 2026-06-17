@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 import 'package:share_bridge_qq_android/share_bridge_qq_android.dart';
+import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

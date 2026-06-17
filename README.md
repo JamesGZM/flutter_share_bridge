@@ -23,7 +23,7 @@ Flutter Share Bridge 是一组模块化的 Flutter 社交分享插件，用于�
 | --- | --- |
 | `share_bridge_core` | 核心模型、分享管理器、结果类型，不依赖 Flutter |
 | `share_bridge_wechat` | 微信分享主包，自动带入 Android / iOS 实现 |
-| `share_bridge_qq` | QQ / QQ 空间分享主包，自动带入 Android / iOS 实现 |
+| `share_bridge_qq` | QQ / QQ 空间分享主包，自动带入 Android / iOS / HarmonyOS 实现 |
 | `share_bridge_widgets` | 可选分享 UI |
 
 平台实现包采用 federated plugin 结构拆分：
@@ -34,6 +34,7 @@ share_bridge_wechat_android
 share_bridge_wechat_ios
 share_bridge_qq_android
 share_bridge_qq_ios
+share_bridge_qq_ohos
 ```
 
 普通宿主 App 只需要依赖主包；平台实现包由 `default_package` 自动带入。

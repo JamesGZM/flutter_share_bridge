@@ -1,0 +1,14 @@
+{
+  "name": "share_bridge_qq_ohos",
+  "version": "0.1.0-dev.1",
+  "description": "HarmonyOS implementation of share_bridge_qq.",
+  "main": "index.ets",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@ohos/flutter_ohos": "file:./har/flutter.har",
+    "@tencent/qq-open-sdk": ">=1.0.4"
+  },
+  "devDependencies": {},
+  "dynamicDependencies": {}
+}

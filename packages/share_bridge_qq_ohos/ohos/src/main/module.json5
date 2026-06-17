@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "share_bridge_qq_ohos",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ]
+  }
+}

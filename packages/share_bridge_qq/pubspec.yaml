@@ -17,6 +17,8 @@ dependencies:
     path: ../share_bridge_qq_android
   share_bridge_qq_ios:
     path: ../share_bridge_qq_ios
+  share_bridge_qq_ohos:
+    path: ../share_bridge_qq_ohos
   share_bridge_platform_interface:
     path: ../share_bridge_platform_interface
 
@@ -37,3 +39,5 @@ flutter:
         default_package: share_bridge_qq_android
       ios:
         default_package: share_bridge_qq_ios
+      ohos:
+        default_package: share_bridge_qq_ohos

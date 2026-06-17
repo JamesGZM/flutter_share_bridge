@@ -21,11 +21,27 @@ await manager.register(
   QqShareProvider(
     appId: 'your_qq_app_id',
     universalLink: 'https://example.com/qq/',
+    qqHarmonySigner: (request) async {
+      final signed = await requestYourBackendToSign(
+        type: request.type,
+        shareJson: request.shareJson,
+      );
+      return QqHarmonyShareSignature(
+        type: request.type,
+        shareJson: request.shareJson,
+        timestamp: signed.timestamp,
+        nonce: signed.nonce,
+        shareJsonSign: signed.shareJsonSign,
+        openId: signed.openId,
+      );
+    },
   ),
 );
 ```
 
 `setPrivacyGranted(true)` 会真实调用 QQ 官方 SDK 隐私授权 API：Android 对应 `Tencent.setIsPermissionGranted(true)`，iOS 对应 `TencentOAuth.setIsUserAgreedAuthorization(true)`。宿主 App 应在用户同意隐私政策后调用它。
+
+`qqHarmonySigner` 只在 QQ HarmonyOS 分享时使用。QQ HarmonyOS SDK 要求对 `shareJson + timestamp + nonce` 进行签名，签名应由业务后台完成；Android / iOS 会忽略该参数。
 
 安装检查统一走 manager：
 
@@ -48,7 +64,8 @@ Android 真机调试前，还需要把 example 的 `AndroidManifest.xml` 中 `te
 - 不做登录、OAuth、用户资料。
 - Android 支持 QQ 好友网页分享、QQ 好友图片分享、QQ 空间网页分享。
 - iOS 支持 QQ 好友网页分享、QQ 好友图片分享、QQ 空间网页分享。
-- Android / iOS 暂不把 QQ 空间纯图片分享作为 MVP 能力。
+- HarmonyOS 支持 QQ 好友网页分享、QQ 好友图片分享、QQ 空间网页分享；需要配置 `qqHarmonySigner`。
+- Android / iOS / HarmonyOS 暂不把 QQ 空间纯图片分享作为 MVP 能力。
 
 ## Android SDK 接入说明
 

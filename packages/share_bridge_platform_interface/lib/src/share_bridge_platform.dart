@@ -51,10 +51,6 @@ abstract class ShareBridgePlatform extends PlatformInterface {
   }
 }
 
-abstract interface class ShareBridgePrivacyControl {
-  Future<void> setPrivacyGranted(bool granted);
-}
-
 final class _UnregisteredShareBridgePlatform extends ShareBridgePlatform {
   _UnregisteredShareBridgePlatform(this.client);
 

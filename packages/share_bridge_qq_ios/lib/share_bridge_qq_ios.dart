@@ -5,8 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:share_bridge_platform_interface/share_bridge_platform_interface.dart';
 
 /// iOS implementation for QQ and QZone sharing.
-final class ShareBridgeQqIOS extends ShareBridgePlatform
-    implements ShareBridgePrivacyControl {
+final class ShareBridgeQqIOS extends ShareBridgePlatform {
   static void registerWith() {
     ShareBridgePlatform.register(
       client: ShareClient.qq,
@@ -28,7 +27,6 @@ final class ShareBridgeQqIOS extends ShareBridgePlatform
     });
   }
 
-  @override
   Future<void> setPrivacyGranted(bool granted) async {
     await methodChannel.invokeMethod<void>('setPrivacyGranted', {
       'granted': granted,

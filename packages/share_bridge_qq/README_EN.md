@@ -21,11 +21,27 @@ await manager.register(
   QqShareProvider(
     appId: 'your_qq_app_id',
     universalLink: 'https://example.com/qq/',
+    qqHarmonySigner: (request) async {
+      final signed = await requestYourBackendToSign(
+        type: request.type,
+        shareJson: request.shareJson,
+      );
+      return QqHarmonyShareSignature(
+        type: request.type,
+        shareJson: request.shareJson,
+        timestamp: signed.timestamp,
+        nonce: signed.nonce,
+        shareJsonSign: signed.shareJsonSign,
+        openId: signed.openId,
+      );
+    },
   ),
 );
 ```
 
 `setPrivacyGranted(true)` calls the official QQ SDK privacy authorization API: Android uses `Tencent.setIsPermissionGranted(true)`, and iOS uses `TencentOAuth.setIsUserAgreedAuthorization(true)`. Host apps should call it after users agree to the privacy policy.
+
+`qqHarmonySigner` is used only by QQ HarmonyOS sharing. QQ HarmonyOS SDK requires signing `shareJson + timestamp + nonce`; the signature should be produced by your backend. Android and iOS ignore this parameter.
 
 Installation checks go through the manager:
 
@@ -48,7 +64,8 @@ Before Android real-device debugging, replace `tencentyour_qq_app_id` in the exa
 - No login, OAuth, or user profile APIs.
 - Android supports QQ friend webpage sharing, QQ friend image sharing, and QZone webpage sharing.
 - iOS supports QQ friend webpage sharing, QQ friend image sharing, and QZone webpage sharing.
-- Pure image sharing to QZone is not part of the MVP capability set on Android / iOS.
+- HarmonyOS supports QQ friend webpage sharing, QQ friend image sharing, and QZone webpage sharing; it requires `qqHarmonySigner`.
+- Pure image sharing to QZone is not part of the MVP capability set on Android / iOS / HarmonyOS.
 
 ## Android SDK Integration
 

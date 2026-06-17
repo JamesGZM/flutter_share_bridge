@@ -23,7 +23,7 @@ It is share-only. It does not include login, payment, OAuth, or user profile API
 | --- | --- |
 | `share_bridge_core` | Core models, share manager, result types. No Flutter dependency |
 | `share_bridge_wechat` | WeChat sharing wrapper package, automatically endorses Android / iOS implementations |
-| `share_bridge_qq` | QQ / QZone sharing wrapper package, automatically endorses Android / iOS implementations |
+| `share_bridge_qq` | QQ / QZone sharing wrapper package, automatically endorses Android / iOS / HarmonyOS implementations |
 | `share_bridge_widgets` | Optional share UI |
 
 Platform implementations use the federated plugin layout:
@@ -34,6 +34,7 @@ share_bridge_wechat_android
 share_bridge_wechat_ios
 share_bridge_qq_android
 share_bridge_qq_ios
+share_bridge_qq_ohos
 ```
 
 Host apps should depend on the wrapper packages. Platform packages are pulled in by `default_package`.
