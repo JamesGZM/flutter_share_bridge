@@ -15,14 +15,14 @@ It is share-only. It does not include login, payment, OAuth, or user profile API
 - Unified Dart result type: `ShareResult`
 - Unified dispatcher: `ShareManager`
 - Optional Flutter share UI
-- Official SDK integration on Android and iOS
+- Official SDK integration on Android / iOS / HarmonyOS
 
 ## Packages
 
 | Package | Description |
 | --- | --- |
 | `share_bridge_core` | Core models, share manager, result types. No Flutter dependency |
-| `share_bridge_wechat` | WeChat sharing wrapper package, automatically endorses Android / iOS implementations |
+| `share_bridge_wechat` | WeChat sharing wrapper package, automatically endorses Android / iOS / HarmonyOS implementations |
 | `share_bridge_qq` | QQ / QZone sharing wrapper package, automatically endorses Android / iOS / HarmonyOS implementations |
 | `share_bridge_widgets` | Optional share UI |
 
@@ -32,6 +32,7 @@ Platform implementations use the federated plugin layout:
 share_bridge_platform_interface
 share_bridge_wechat_android
 share_bridge_wechat_ios
+share_bridge_wechat_ohos
 share_bridge_qq_android
 share_bridge_qq_ios
 share_bridge_qq_ohos
@@ -164,10 +165,19 @@ iOS:
 - Configure Associated Domains if Universal Links are used
 - Forward WeChat and QQ callbacks from AppDelegate / SceneDelegate
 
+HarmonyOS:
+
+- Host apps normally depend on `share_bridge_wechat` / `share_bridge_qq`; `share_bridge_wechat_ohos` / `share_bridge_qq_ohos` are pulled in by `default_package`.
+- WeChat requires query schemes and forwarding `EntryAbility.onCreate/onNewWant` to `ShareBridgeWechatPlugin.handleWant(want)` so final share results can be received.
+- QQ requires the `qqopenapi` callback scheme and `useNormalizedOHMUrl`.
+- QQ HarmonyOS sharing requires backend signing through `QqShareProvider(qqHarmonySigner: ...)`.
+- Before debugging, generate a local debug signing config for the `ohos` project in DevEco Studio. Certificates, keystores, and `local.properties` are not committed.
+
 See:
 
 - [Android setup](docs/android_setup.md)
 - [iOS setup](docs/ios_setup.md)
+- [HarmonyOS setup](docs/harmonyos_setup_EN.md)
 - [Privacy notes](docs/privacy.md)
 
 ## Local Example
@@ -179,7 +189,17 @@ fvm flutter run \
   --dart-define=QQ_APP_ID=your_qq_app_id
 ```
 
-`dart-define` only passes values to Dart code. It does not update AndroidManifest, Info.plist, or developer console settings.
+HarmonyOS local debugging:
+
+```sh
+direnv allow
+cd example
+fvm spawn custom_3.27.4_ohos_dev run -d <device-id> \
+  --dart-define=WECHAT_APP_ID=your_wechat_app_id \
+  --dart-define=QQ_APP_ID=your_qq_app_id
+```
+
+`dart-define` only passes values to Dart code. It does not update AndroidManifest, Info.plist, HarmonyOS `module.json5`, or developer console settings.
 
 ## Error Handling
 
@@ -217,6 +237,8 @@ Common result codes:
 cd packages/share_bridge_core && fvm dart analyze && fvm dart test
 cd packages/share_bridge_widgets && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_platform_interface && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_wechat_ohos && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_qq_ohos && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_wechat && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_qq && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_wechat_android && fvm flutter analyze

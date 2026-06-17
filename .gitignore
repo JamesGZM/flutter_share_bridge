@@ -1,5 +1,7 @@
 .dart_tool/
 .packages
+.flutter-plugins
+.flutter-plugins-dependencies
 .pub/
 build/
 coverage/
@@ -10,7 +12,18 @@ coverage/
 .idea/
 .vscode/
 .codegraph/
+.envrc
+.fvm/
+.fvmrc
+.fvmrc.cache
+.direnv/
 
 .DS_Store
 
 pubspec.lock
+
+# HarmonyOS / FVM local artifacts
+oh-package-lock.json5
+oh_modules/
+node_modules/
+BuildProfile.ets

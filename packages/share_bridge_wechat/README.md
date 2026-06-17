@@ -8,6 +8,7 @@ Share Bridge 的微信分享能力包。
 
 - Android：已接入微信 OpenSDK，可发起网页 / 图片分享并等待 `WXEntryActivity` 回调。
 - iOS：已接入 `WechatOpenSDK-XCFramework`，可发起网页 / 图片分享并处理 URL Scheme / Universal Link 回调。
+- HarmonyOS：已新增 `share_bridge_wechat_ohos`，可通过微信 OpenSDK 发起网页 / 图片分享。
 
 ## 使用形态
 
@@ -72,3 +73,11 @@ if ShareBridgeWechatPlugin.handleOpenUniversalLink(userActivity) {
   return
 }
 ```
+
+## HarmonyOS 接入
+
+HarmonyOS 平台由 `share_bridge_wechat_ohos` 自动接入。微信 HarmonyOS 不需要签名 callback，继续使用普通 `ShareContent.webpage` / `ShareContent.image`。
+
+宿主工程需要按微信开放平台 HarmonyOS 文档完成应用配置；示例 App 的 entry 模块已声明 `weixin`、`wxopensdk` 查询 scheme，插件 HAR 依赖 `@tencent/wechat_open_sdk`。
+
+为接收分享结果，宿主 `EntryAbility` 需要在 `onCreate` / `onNewWant` 调用 `ShareBridgeWechatPlugin.handleWant(want)`。示例工程已配置。

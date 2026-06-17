@@ -1,0 +1,14 @@
+{
+  "name": "share_bridge_wechat_ohos",
+  "version": "0.1.0-dev.1",
+  "description": "HarmonyOS implementation of share_bridge_wechat.",
+  "main": "index.ets",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@ohos/flutter_ohos": "file:./har/flutter.har",
+    "@tencent/wechat_open_sdk": ">=1.0.14"
+  },
+  "devDependencies": {},
+  "dynamicDependencies": {}
+}

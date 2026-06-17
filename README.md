@@ -15,14 +15,14 @@ Flutter Share Bridge 是一组模块化的 Flutter 社交分享插件，用于�
 - 统一的 Dart 分享结果 `ShareResult`
 - 统一的分享入口 `ShareManager`
 - 可选 Flutter 分享面板 UI
-- Android / iOS 官方 SDK 接入
+- Android / iOS / HarmonyOS 官方 SDK 接入
 
 ## 包
 
 | 包 | 说明 |
 | --- | --- |
 | `share_bridge_core` | 核心模型、分享管理器、结果类型，不依赖 Flutter |
-| `share_bridge_wechat` | 微信分享主包，自动带入 Android / iOS 实现 |
+| `share_bridge_wechat` | 微信分享主包，自动带入 Android / iOS / HarmonyOS 实现 |
 | `share_bridge_qq` | QQ / QQ 空间分享主包，自动带入 Android / iOS / HarmonyOS 实现 |
 | `share_bridge_widgets` | 可选分享 UI |
 
@@ -32,6 +32,7 @@ Flutter Share Bridge 是一组模块化的 Flutter 社交分享插件，用于�
 share_bridge_platform_interface
 share_bridge_wechat_android
 share_bridge_wechat_ios
+share_bridge_wechat_ohos
 share_bridge_qq_android
 share_bridge_qq_ios
 share_bridge_qq_ohos
@@ -164,10 +165,19 @@ iOS：
 - 如使用 Universal Link，配置 Associated Domains
 - 在 AppDelegate / SceneDelegate 中转发微信和 QQ 回调
 
+HarmonyOS：
+
+- 普通宿主 App 依赖 `share_bridge_wechat` / `share_bridge_qq` 即可，`share_bridge_wechat_ohos` / `share_bridge_qq_ohos` 由 `default_package` 自动带入。
+- 微信需要配置 `querySchemes`，并在 `EntryAbility.onCreate/onNewWant` 调用 `ShareBridgeWechatPlugin.handleWant(want)` 接收分享结果。
+- QQ 需要配置 `qqopenapi` 回调 scheme，并开启 `useNormalizedOHMUrl`。
+- QQ HarmonyOS 分享需要业务后台签名，通过 `QqShareProvider(qqHarmonySigner: ...)` 接入。
+- 调试前需要用 DevEco Studio 为 `ohos` 工程生成本机调试签名；证书、keystore、`local.properties` 不提交。
+
 详细说明：
 
 - [Android 配置](docs/android_setup.md)
 - [iOS 配置](docs/ios_setup.md)
+- [HarmonyOS 配置](docs/harmonyos_setup.md)
 - [隐私说明](docs/privacy.md)
 
 ## 本地示例
@@ -179,7 +189,17 @@ fvm flutter run \
   --dart-define=QQ_APP_ID=你的QQ互联AppID
 ```
 
-`dart-define` 只传给 Dart 层，不会自动修改 AndroidManifest、Info.plist 或开放平台后台配置。
+HarmonyOS 本地调试：
+
+```sh
+direnv allow
+cd example
+fvm spawn custom_3.27.4_ohos_dev run -d <device-id> \
+  --dart-define=WECHAT_APP_ID=你的微信AppID \
+  --dart-define=QQ_APP_ID=你的QQ互联AppID
+```
+
+`dart-define` 只传给 Dart 层，不会自动修改 AndroidManifest、Info.plist、HarmonyOS `module.json5` 或开放平台后台配置。
 
 ## 错误处理
 
@@ -217,6 +237,8 @@ switch (result.code) {
 cd packages/share_bridge_core && fvm dart analyze && fvm dart test
 cd packages/share_bridge_widgets && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_platform_interface && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_wechat_ohos && fvm flutter analyze && fvm flutter test
+cd packages/share_bridge_qq_ohos && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_wechat && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_qq && fvm flutter analyze && fvm flutter test
 cd packages/share_bridge_wechat_android && fvm flutter analyze

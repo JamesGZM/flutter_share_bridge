@@ -2,7 +2,7 @@
 
 [English](harmonyos_setup_EN.md) | 中文
 
-当前已开始接入 QQ HarmonyOS 分享；微信 HarmonyOS 按同样的 federated 子包结构预留，后续再实现。
+当前已开始接入 QQ 与微信 HarmonyOS 分享，均采用独立 federated 子包结构。
 
 Dart API 尽量保持与 Android、iOS Provider 一致。当前平台或内容类型不支持时，必须返回明确的 `ShareResultCode`，不能静默失败。
 
@@ -64,4 +64,45 @@ final provider = QqShareProvider(
 
 ## 微信 HarmonyOS
 
-微信 HarmonyOS 后续会新增 `share_bridge_wechat_ohos`。微信 OpenSDK 可从普通 `ShareContent.webpage/image` 构造 `WXMediaMessage` 和 `SendMessageToWXReq`，不需要 QQ HarmonyOS 这种后台签名 callback。
+微信 HarmonyOS 使用独立实现包 `share_bridge_wechat_ohos`。普通宿主 App 只需要依赖 `share_bridge_wechat`，HarmonyOS 平台由 `default_package` 自动带入。
+
+### SDK 依赖
+
+插件的 HarmonyOS 模块通过 `oh-package.json5` 依赖微信 OpenSDK：
+
+```json5
+"dependencies": {
+  "@tencent/wechat_open_sdk": ">=1.0.14"
+}
+```
+
+宿主工程仍需要按微信开放平台 HarmonyOS 文档配置应用信息和查询 scheme。示例 App 的 entry 模块声明了：
+
+- `querySchemes`: `weixin`、`wxopensdk`
+
+宿主 `EntryAbility` 还需要在冷启动和热启动时把微信回调 `want` 交给插件处理，否则只能发起分享，拿不到微信返回的成功 / 取消 / 错误结果：
+
+```ts
+import Want from '@ohos.app.ability.Want';
+import AbilityConstant from '@ohos.app.ability.AbilityConstant';
+import ShareBridgeWechatPlugin from 'share_bridge_wechat_ohos';
+
+onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
+  super.onCreate(want, launchParam)
+  ShareBridgeWechatPlugin.handleWant(want)
+}
+
+onNewWant(want: Want, launchParams: AbilityConstant.LaunchParam): void {
+  super.onNewWant(want, launchParams)
+  ShareBridgeWechatPlugin.handleWant(want)
+}
+```
+
+### 分享映射
+
+微信 HarmonyOS 不需要 QQ HarmonyOS 这种后台签名 callback。插件直接从普通 `ShareContent.webpage/image` 构造微信 OpenSDK 请求：
+
+- `wechat.session` + 网页：`WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
+- `wechat.timeline` + 网页：`WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`
+- `wechat.session` + 图片：`WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
+- `wechat.timeline` + 图片：`WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`

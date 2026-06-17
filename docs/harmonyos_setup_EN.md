@@ -2,7 +2,7 @@
 
 English | [中文](harmonyos_setup.md)
 
-QQ HarmonyOS sharing support has started. WeChat HarmonyOS is reserved for a later package using the same federated structure.
+QQ and WeChat HarmonyOS sharing support has started. Both use standalone federated platform packages.
 
 The Dart API should stay as consistent as possible with the Android and iOS providers. If the current platform or content type is unsupported, the implementation must return an explicit `ShareResultCode` instead of failing silently.
 
@@ -64,4 +64,45 @@ Current capability mapping:
 
 ## WeChat HarmonyOS
 
-WeChat HarmonyOS will later use a separate `share_bridge_wechat_ohos` package. WeChat OpenSDK can construct `WXMediaMessage` and `SendMessageToWXReq` from normal `ShareContent.webpage/image`, so it does not need a QQ-style backend signing callback.
+WeChat HarmonyOS uses the standalone implementation package `share_bridge_wechat_ohos`. Host apps normally depend on `share_bridge_wechat`; the HarmonyOS implementation is pulled in by `default_package`.
+
+### SDK Dependency
+
+The HarmonyOS module depends on WeChat OpenSDK in `oh-package.json5`:
+
+```json5
+"dependencies": {
+  "@tencent/wechat_open_sdk": ">=1.0.14"
+}
+```
+
+Host apps still need to configure app information and query schemes according to the WeChat Open Platform HarmonyOS documentation. The example app entry module declares:
+
+- `querySchemes`: `weixin`, `wxopensdk`
+
+The host `EntryAbility` must also forward WeChat callback `want` objects during cold and warm starts. Otherwise sharing can be launched, but the plugin cannot receive the final success / cancel / error response from WeChat:
+
+```ts
+import Want from '@ohos.app.ability.Want';
+import AbilityConstant from '@ohos.app.ability.AbilityConstant';
+import ShareBridgeWechatPlugin from 'share_bridge_wechat_ohos';
+
+onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
+  super.onCreate(want, launchParam)
+  ShareBridgeWechatPlugin.handleWant(want)
+}
+
+onNewWant(want: Want, launchParams: AbilityConstant.LaunchParam): void {
+  super.onNewWant(want, launchParams)
+  ShareBridgeWechatPlugin.handleWant(want)
+}
+```
+
+### Share Mapping
+
+WeChat HarmonyOS does not need a QQ-style backend signing callback. The plugin constructs WeChat OpenSDK requests directly from normal `ShareContent.webpage/image`:
+
+- `wechat.session` + webpage: `WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
+- `wechat.timeline` + webpage: `WXWebpageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`
+- `wechat.session` + image: `WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneSession`
+- `wechat.timeline` + image: `WXImageObject` + `WXMediaMessage` + `SendMessageToWXReq.WXSceneTimeline`

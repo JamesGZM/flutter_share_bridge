@@ -8,6 +8,7 @@ Current status:
 
 - Android: integrates WeChat OpenSDK and supports webpage / image sharing with `WXEntryActivity` callback handling.
 - iOS: integrates `WechatOpenSDK-XCFramework` and supports webpage / image sharing with URL Scheme / Universal Link callbacks.
+- HarmonyOS: adds `share_bridge_wechat_ohos` and supports webpage / image sharing through WeChat OpenSDK.
 
 ## Usage
 
@@ -72,3 +73,11 @@ if ShareBridgeWechatPlugin.handleOpenUniversalLink(userActivity) {
   return
 }
 ```
+
+## HarmonyOS Setup
+
+HarmonyOS is loaded through `share_bridge_wechat_ohos`. WeChat HarmonyOS does not need a signing callback; keep using normal `ShareContent.webpage` / `ShareContent.image`.
+
+Host projects still need to complete WeChat Open Platform HarmonyOS configuration. The example app entry module declares the `weixin` and `wxopensdk` query schemes, and the plugin HAR depends on `@tencent/wechat_open_sdk`.
+
+To receive final share results, the host `EntryAbility` must call `ShareBridgeWechatPlugin.handleWant(want)` from `onCreate` / `onNewWant`. The example project already includes this wiring.

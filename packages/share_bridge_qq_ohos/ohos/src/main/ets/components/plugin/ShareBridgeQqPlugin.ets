@@ -34,6 +34,8 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
       this.channel.setMethodCallHandler(null);
     }
     this.channel = null;
+    this.context = null;
+    this.qqApi = null;
   }
 
   onMethodCall(call: MethodCall, result: MethodResult): void {
@@ -58,7 +60,12 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
       result.error('configError', 'QQ appId must not be empty.', null);
       return;
     }
-    this.qqApi = QQOpenApiFactory.createApi(appId);
+    const numericAppId = Number(appId);
+    if (!Number.isInteger(numericAppId) || numericAppId <= 0) {
+      result.error('configError', 'QQ appId must be a numeric string.', null);
+      return;
+    }
+    this.qqApi = QQOpenApiFactory.createApi(numericAppId);
     result.success(null);
   }
 
@@ -85,22 +92,25 @@ export default class ShareBridgeQqPlugin implements FlutterPlugin, MethodCallHan
 
     const type = call.argument('type') as number | null;
     const shareJson = call.argument('shareJson') as Record<string, Object> | null;
-    const timestamp = call.argument('timestamp') as string | null;
-    const nonce = call.argument('nonce') as string | null;
+    const timestamp = Number(call.argument('timestamp') as string | null);
+    const nonce = Number(call.argument('nonce') as string | null);
     const shareJsonSign = call.argument('shareJsonSign') as string | null;
     const openId = call.argument('openId') as string | undefined;
 
-    if (!type || !shareJson || !timestamp || !nonce || !shareJsonSign) {
+    if (!type ||
+      !shareJson ||
+      !Number.isFinite(timestamp) ||
+      !Number.isFinite(nonce) ||
+      !shareJsonSign) {
       result.success(this.resultMap('invalidArgument', 'QQ HarmonyOS signed share data is incomplete.'));
       return;
     }
 
-    const shareData: ShareData = {
-      shareJson: JSON.stringify(shareJson),
-      timestamp: timestamp,
-      nonce: nonce,
-      shareJsonSign: shareJsonSign,
-    };
+    const shareData = new ShareData();
+    shareData.shareJson = JSON.stringify(shareJson);
+    shareData.timestamp = timestamp;
+    shareData.nonce = nonce;
+    shareData.shareJsonSign = shareJsonSign;
 
     api.share(type, shareData, openId)
       .then((shareResult: ShareResult) => {
